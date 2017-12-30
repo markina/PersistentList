@@ -8,8 +8,8 @@ import java.util.List;
 public class PersistentList implements PersistentListI {
     private int FIRST_VERSION = -1;
 
-    private List<Node> heads;
-    private List<Node> tails;
+    private List<FatNode> heads;
+    private List<FatNode> tails;
     private int prevVersion;
     private int currentVersion;
 
@@ -73,8 +73,8 @@ public class PersistentList implements PersistentListI {
 
     @Override
     public IteratorI get(int index, int version) {
-        SmallNode smallNode = getSmallNode(index, version);
-        return new PersistentListIterator(smallNode, version);
+        Node node = getSmallNode(index, version);
+        return new PersistentListIterator(node, version);
     }
 
     @Override
@@ -87,39 +87,39 @@ public class PersistentList implements PersistentListI {
         return prevVersion == FIRST_VERSION || heads.get(prevVersion) == null;
     }
 
-    private SmallNode getHeadSmallNode(int version) {
+    private Node getHeadSmallNode(int version) {
         if (heads.size() < version) {
             throw new IllegalArgumentException("Head of version " + version + " isn't exist");
         }
         return heads.get(version).getSmallNode(version);
     }
 
-    private SmallNode getTailSmallNode(int version) {
+    private Node getTailSmallNode(int version) {
         if (tails.size() < version) {
             throw new IllegalArgumentException("Tails of version " + version + " isn't exist");
         }
         return tails.get(version).getSmallNode(version);
     }
 
-    public SmallNode getSmallNode(int index, int version) {
+    public Node getSmallNode(int index, int version) {
         int curIndex = 0;
-        SmallNode smallNode = getHeadSmallNode(version);
-        while (smallNode.hasNext() && curIndex != index) {
+        Node node = getHeadSmallNode(version);
+        while (node.hasNext() && curIndex != index) {
             curIndex++;
-            smallNode = smallNode.getNext().getSmallNode(version);
+            node = node.getNext().getSmallNode(version);
         }
         if (curIndex != index) {
             throw new IllegalArgumentException("Index out of bound");
         }
 
-        return smallNode;
+        return node;
     }
 
-    List<Node> getHeads() {
+    List<FatNode> getHeads() {
         return heads;
     }
 
-    List<Node> getTails() {
+    List<FatNode> getTails() {
         return tails;
     }
 
@@ -127,26 +127,26 @@ public class PersistentList implements PersistentListI {
         if (tails.size() == currentVersion + 1) {
             return;
         }
-        Node node = tails.get(prevVersion);
-        Node newNode = recRight(null, node);
-        tails.add(newNode);
+        FatNode fatNode = tails.get(prevVersion);
+        FatNode newFatNode = recRight(null, fatNode);
+        tails.add(newFatNode);
     }
 
     private void copyHead() {
         if (heads.size() == currentVersion + 1) {
             return;
         }
-        Node node = heads.get(prevVersion);
-        Node newNode = recRight(null, node);
-        heads.add(newNode);
+        FatNode fatNode = heads.get(prevVersion);
+        FatNode newFatNode = recRight(null, fatNode);
+        heads.add(newFatNode);
     }
 
     private void initList(int value) {
-        final Node node = new Node();
-        final SmallNode smallNode = new SmallNode(value, currentVersion, node);
-        node.setFirst(smallNode);
-        heads.add(node);
-        tails.add(node);
+        final FatNode fatNode = new FatNode();
+        final Node node = new Node(value, currentVersion, fatNode);
+        fatNode.setFirst(node);
+        heads.add(fatNode);
+        tails.add(fatNode);
         return;
     }
 
@@ -155,23 +155,23 @@ public class PersistentList implements PersistentListI {
             throw new IndexOutOfBoundsException("Index out of bounds");
         }
 
-        SmallNode smallNode = getSmallNode(index, prevVersion);
+        Node node = getSmallNode(index, prevVersion);
 
-        if (!smallNode.getBigBrother().hasSecondSmallNode()) {
-            SmallNode copySmallNode = new SmallNode(newValue, currentVersion, smallNode.getBigBrother());
-            smallNode.getBigBrother().setSecond(copySmallNode);
-            Node right = recRight(smallNode.getBigBrother(), smallNode.getNext());
-            Node left = recLeft(smallNode.getBigBrother(), smallNode.getPrev());
-            copySmallNode.setPrev(left);
-            copySmallNode.setNext(right);
+        if (!node.getBigBrother().hasSecondSmallNode()) {
+            Node copyNode = new Node(newValue, currentVersion, node.getBigBrother());
+            node.getBigBrother().setSecond(copyNode);
+            FatNode right = recRight(node.getBigBrother(), node.getNext());
+            FatNode left = recLeft(node.getBigBrother(), node.getPrev());
+            copyNode.setPrev(left);
+            copyNode.setNext(right);
         } else {
-            Node node = new Node();
-            SmallNode copySmallNode = new SmallNode(newValue, currentVersion, node);
-            node.setFirst(copySmallNode);
-            Node right = recRight(node, smallNode.getNext());
-            Node left = recLeft(node, smallNode.getPrev());
-            copySmallNode.setPrev(left);
-            copySmallNode.setNext(right);
+            FatNode fatNode = new FatNode();
+            Node copyNode = new Node(newValue, currentVersion, fatNode);
+            fatNode.setFirst(copyNode);
+            FatNode right = recRight(fatNode, node.getNext());
+            FatNode left = recLeft(fatNode, node.getPrev());
+            copyNode.setPrev(left);
+            copyNode.setNext(right);
         }
     }
 
@@ -186,20 +186,20 @@ public class PersistentList implements PersistentListI {
             return;
         }
 
-        SmallNode smallNode = getSmallNode(index-1, prevVersion); // TODO rename smallNode -> prev?
+        Node node = getSmallNode(index-1, prevVersion); // TODO rename node -> prev?
 
-        if (!smallNode.hasNext()) {
+        if (!node.hasNext()) {
             addTail(value);
             return;
         }
 
-        Node newNode = new Node();
-        SmallNode newSmallNode = new SmallNode(value, currentVersion, newNode);
-        newNode.setFirst(newSmallNode);
-        Node right = recRight(newSmallNode.getBigBrother(), smallNode.getNext());
-        Node left = recLeft(newSmallNode.getBigBrother(), smallNode.getBigBrother());
-        newSmallNode.setPrev(left);
-        newSmallNode.setNext(right);
+        FatNode newFatNode = new FatNode();
+        Node newNode = new Node(value, currentVersion, newFatNode);
+        newFatNode.setFirst(newNode);
+        FatNode right = recRight(newNode.getBigBrother(), node.getNext());
+        FatNode left = recLeft(newNode.getBigBrother(), node.getBigBrother());
+        newNode.setPrev(left);
+        newNode.setNext(right);
     }
 
     private void innerRemove(int index) { // TODO
@@ -209,75 +209,75 @@ public class PersistentList implements PersistentListI {
         throw new UnsupportedOperationException("remove"); // TODO remove
     }
 
-    private Node recRight(Node prevNode, Node curNode) {
-        if (curNode == null) { // it's end of list
-            tails.add(prevNode);
+    private FatNode recRight(FatNode prevFatNode, FatNode curFatNode) {
+        if (curFatNode == null) { // it's end of list
+            tails.add(prevFatNode);
             return null;
         }
 
-        if (!curNode.hasSecondSmallNode()) {
-            SmallNode copySmallNode = new SmallNode(curNode.getFirst().getValue(), currentVersion, curNode);
-            copySmallNode.setPrev(prevNode);
-            if (curNode.getFirst().getNext() == null) {
-                tails.add(curNode);
+        if (!curFatNode.hasSecondSmallNode()) {
+            Node copyNode = new Node(curFatNode.getFirst().getValue(), currentVersion, curFatNode);
+            copyNode.setPrev(prevFatNode);
+            if (curFatNode.getFirst().getNext() == null) {
+                tails.add(curFatNode);
             }
-            copySmallNode.setNext(curNode.getFirst().getNext());
-            curNode.setSecond(copySmallNode);
-            return curNode;
+            copyNode.setNext(curFatNode.getFirst().getNext());
+            curFatNode.setSecond(copyNode);
+            return curFatNode;
         } else {
-            Node newNode = new Node();
-            SmallNode copySmallNode = new SmallNode(curNode.getSecond().getValue(), currentVersion, newNode);
-            newNode.setFirst(copySmallNode);
-            copySmallNode.setPrev(prevNode);
-            Node right = recRight(newNode, curNode.getSecond().getNext());
-            copySmallNode.setNext(right);
-            return newNode;
+            FatNode newFatNode = new FatNode();
+            Node copyNode = new Node(curFatNode.getSecond().getValue(), currentVersion, newFatNode);
+            newFatNode.setFirst(copyNode);
+            copyNode.setPrev(prevFatNode);
+            FatNode right = recRight(newFatNode, curFatNode.getSecond().getNext());
+            copyNode.setNext(right);
+            return newFatNode;
         }
     }
 
-    private Node recLeft(Node nextNode, Node curNode) {
-        if (curNode == null) { // it's start of list
-            heads.add(nextNode);
+    private FatNode recLeft(FatNode nextFatNode, FatNode curFatNode) {
+        if (curFatNode == null) { // it's start of list
+            heads.add(nextFatNode);
             return null;
         }
 
-        if (!curNode.hasSecondSmallNode()) {
-            SmallNode copySmallNode = new SmallNode(curNode.getFirst().getValue(), currentVersion, curNode);
-            if (curNode.getFirst().getPrev() == null) { // curNode is head
-                heads.add(curNode);
+        if (!curFatNode.hasSecondSmallNode()) {
+            Node copyNode = new Node(curFatNode.getFirst().getValue(), currentVersion, curFatNode);
+            if (curFatNode.getFirst().getPrev() == null) { // curFatNode is head
+                heads.add(curFatNode);
             }
-            copySmallNode.setNext(nextNode);
-            copySmallNode.setPrev(curNode.getFirst().getPrev());
-            curNode.setSecond(copySmallNode);
-            return curNode;
+            copyNode.setNext(nextFatNode);
+            copyNode.setPrev(curFatNode.getFirst().getPrev());
+            curFatNode.setSecond(copyNode);
+            return curFatNode;
         } else {
-            Node newNode = new Node();
-            SmallNode copySmallNode = new SmallNode(curNode.getSecond().getValue(), currentVersion, newNode);
-            newNode.setFirst(copySmallNode);
-            copySmallNode.setNext(nextNode);
-            Node left = recLeft(newNode, curNode.getSecond().getPrev());
-            copySmallNode.setPrev(left);
-            return newNode;
+            FatNode newFatNode = new FatNode();
+            Node copyNode = new Node(curFatNode.getSecond().getValue(), currentVersion, newFatNode);
+            newFatNode.setFirst(copyNode);
+            copyNode.setNext(nextFatNode);
+            FatNode left = recLeft(newFatNode, curFatNode.getSecond().getPrev());
+            copyNode.setPrev(left);
+            return newFatNode;
         }
     }
 
     private void addHead(int value) {
-        final Node node = new Node();
-        final SmallNode smallNode = new SmallNode(value, currentVersion, node);
-        node.setFirst(smallNode);
-        heads.add(node);
+        final FatNode fatNode = new FatNode();
+        final Node node = new Node(value, currentVersion, fatNode);
+        fatNode.setFirst(node);
+        heads.add(fatNode);
 
-        Node rightNode = recRight(node, heads.get(prevVersion));
-        smallNode.setNext(rightNode);
+        FatNode rightFatNode = recRight(fatNode, heads.get(prevVersion));
+        node.setNext(rightFatNode);
     }
 
     private void addTail(int value) {
-        final Node node = new Node();
-        final SmallNode smallNode = new SmallNode(value, currentVersion, node);
-        node.setFirst(smallNode);
-        tails.add(node);
+        final FatNode fatNode = new FatNode();
+        final Node node = new Node(value, currentVersion, fatNode);
+        fatNode.setFirst(node);
+        tails.add(fatNode);
 
-        Node leftNode = recLeft(node, tails.get(prevVersion));
-        smallNode.setPrev(leftNode);
+        FatNode leftFatNode = recLeft(fatNode, tails.get(prevVersion));
+        node.setPrev(leftFatNode);
     }
 }

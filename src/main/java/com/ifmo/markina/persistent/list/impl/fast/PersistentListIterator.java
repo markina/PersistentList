@@ -5,10 +5,10 @@ import com.ifmo.markina.persistent.list.IteratorI;
 import java.util.NoSuchElementException;
 
 public class PersistentListIterator implements IteratorI {
-    private SmallNode it;
+    private Node it;
     private int version;
 
-    public PersistentListIterator(SmallNode it, int version) {
+    public PersistentListIterator(Node it, int version) {
         this.it = it;
         this.version = version;
     }

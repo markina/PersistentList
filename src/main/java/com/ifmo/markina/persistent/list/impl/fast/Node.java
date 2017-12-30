@@ -1,53 +1,66 @@
 package com.ifmo.markina.persistent.list.impl.fast;
 
 public class Node {
-    private SmallNode first;
-    private SmallNode second;
+    private FatNode next;
+    private FatNode prev;
+    private FatNode bigBrother;
+
+    private int version;
+    private int value;
+
+    Node(int value, int version, FatNode bigBrother) {
+        this.value = value;
+        this.version = version;
+        this.bigBrother = bigBrother;
+    }
+
+    void setNext(FatNode next) {
+        this.next = next;
+    }
+
+    void setPrev(FatNode prev) {
+        this.prev = prev;
+    }
+
+    FatNode getBigBrother() {
+        return bigBrother;
+    }
+
+    FatNode getNext() {
+        return next;
+    }
+
+    FatNode getPrev() {
+        return prev;
+    }
+
+    int getVersion() {
+        return version;
+    }
 
     @Override
     public String toString() {
-        return "Node{" +
-                "first=" + first +
-                ", second=" + second +
-                '}';
+        return value + "(" + version + ")";
     }
 
-    SmallNode getFirst() {
-        return first;
+    int getValue() {
+        return value;
     }
 
-    SmallNode getSecond() {
-        return second;
-    }
-
-    void setFirst(SmallNode first) {
-        if (this.first != null) {
-            throw new IllegalArgumentException("First small node in node already exist");
+    public Node next(int version) {
+        if(next == null) {
+            throw new IllegalArgumentException("Next isn't exist");
         }
-        this.first = first;
+        return next.getSmallNode(version);
     }
 
-    void setSecond(SmallNode second) {
-        if (this.second != null) {
-            throw new IllegalArgumentException("Second small node in node already exist");
-        }
-        this.second = second;
+    boolean hasNext() {
+        return next != null;
     }
 
-    SmallNode getSmallNode(int version) {
-        if (hasSecondSmallNode()) {
-            if (second.getVersion() <= version) {
-                return second;
-            } else {
-                return first;
-            }
-        } else {
-            return first;
-        }
-    }
-
-    boolean hasSecondSmallNode() {
-        return second != null;
+    boolean hasPrev() {
+        return prev != null;
     }
 }
+
 
