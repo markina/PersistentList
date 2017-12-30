@@ -20,44 +20,6 @@ public class PersistentList implements PersistentListI {
         tails = new ArrayList<>();
     }
 
-    private void innerAdd(int index, int value) {
-        if (prevVersion == FIRST_VERSION || tails.get(prevVersion) == null) {
-            final Node node = new Node();
-            final SmallNode smallNode = new SmallNode(value, currentVersion, node);
-            node.setFirst(smallNode);
-            heads.add(node);
-            tails.add(node);
-            return;
-        }
-
-        if (index == 0) { // add new head
-            addHead(value);
-            return;
-        }
-
-        SmallNode smallNode = heads.get(prevVersion).getSmallNode(prevVersion);
-        int cntIndex = 1;
-        while (smallNode.hasNext() && cntIndex != index) {
-            smallNode = smallNode.getNext().getSmallNode(prevVersion);
-            cntIndex++;
-        }
-        if (cntIndex != index) {
-            throw new IllegalArgumentException("Index out of bound");
-        }
-        if (!smallNode.hasNext()) {
-            addTail(value);
-            return;
-        }
-
-        Node newNode = new Node();
-        SmallNode newSmallNode = new SmallNode(value, currentVersion, newNode);
-        newNode.setFirst(newSmallNode);
-        Node right = recRight(newSmallNode.getBigBrother(), smallNode.getNext());
-        Node left = recLeft(newSmallNode.getBigBrother(), smallNode.getBigBrother());
-        newSmallNode.setPrev(left);
-        newSmallNode.setNext(right);
-    }
-
     @Override
     public void add(int index, int value) {
         prevVersion = currentVersion;
@@ -109,17 +71,27 @@ public class PersistentList implements PersistentListI {
         return new PersistentListIterator(tails.get(version).getSmallNode(version), version);
     }
 
+    @Override
+    public IteratorI get(int index, int version) {
+        SmallNode smallNode = getSmallNode(index, version);
+        return new PersistentListIterator(smallNode, version);
+    }
+
+    @Override
+    public int getCurrentVersion() {
+        return currentVersion;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return prevVersion == FIRST_VERSION || heads.get(prevVersion) == null;
+    }
+
     private SmallNode getHeadSmallNode(int version) {
         if (heads.size() < version) {
             throw new IllegalArgumentException("Head of version " + version + " isn't exist");
         }
         return heads.get(version).getSmallNode(version);
-    }
-
-    @Override
-    public IteratorI get(int index, int version) {
-        SmallNode smallNode = getSmallNode(index, version);
-        return new PersistentListIterator(smallNode, version);
     }
 
     private SmallNode getTailSmallNode(int version) {
@@ -169,8 +141,17 @@ public class PersistentList implements PersistentListI {
         heads.add(newNode);
     }
 
+    private void initList(int value) {
+        final Node node = new Node();
+        final SmallNode smallNode = new SmallNode(value, currentVersion, node);
+        node.setFirst(smallNode);
+        heads.add(node);
+        tails.add(node);
+        return;
+    }
+
     private void innerEdit(int index, int newValue) {
-        if (prevVersion == FIRST_VERSION || tails.get(prevVersion) == null) {
+        if (isEmpty()) {
             throw new IndexOutOfBoundsException("Index out of bounds");
         }
 
@@ -194,9 +175,36 @@ public class PersistentList implements PersistentListI {
         }
     }
 
-    private void innerRemove(int index) {
-        if (prevVersion == FIRST_VERSION) {
-            throw new IllegalArgumentException("First action can be 'add' only");
+    private void innerAdd(int index, int value) {
+        if (isEmpty()) {
+            initList(value);
+            return;
+        }
+
+        if (index == 0) { // add new head
+            addHead(value);
+            return;
+        }
+
+        SmallNode smallNode = getSmallNode(index-1, prevVersion); // TODO rename smallNode -> prev?
+
+        if (!smallNode.hasNext()) {
+            addTail(value);
+            return;
+        }
+
+        Node newNode = new Node();
+        SmallNode newSmallNode = new SmallNode(value, currentVersion, newNode);
+        newNode.setFirst(newSmallNode);
+        Node right = recRight(newSmallNode.getBigBrother(), smallNode.getNext());
+        Node left = recLeft(newSmallNode.getBigBrother(), smallNode.getBigBrother());
+        newSmallNode.setPrev(left);
+        newSmallNode.setNext(right);
+    }
+
+    private void innerRemove(int index) { // TODO
+        if (isEmpty()) {
+            throw new IllegalArgumentException("Index out of bounds");
         }
         throw new UnsupportedOperationException("remove"); // TODO remove
     }
@@ -271,10 +279,5 @@ public class PersistentList implements PersistentListI {
 
         Node leftNode = recLeft(node, tails.get(prevVersion));
         smallNode.setPrev(leftNode);
-    }
-
-    @Override
-    public int getCurrentVersion() {
-        return currentVersion;
     }
 }

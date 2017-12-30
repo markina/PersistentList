@@ -13,5 +13,7 @@ public interface PersistentListI {
 
     IteratorI getTail(int version);
 
+    boolean isEmpty();
+
     int getCurrentVersion();
 }

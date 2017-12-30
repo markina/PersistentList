@@ -7,12 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NaivePersistentList implements PersistentListI {
-    List<List<Integer>> list;
-    int currentVersion;
-
+    private List<List<Integer>> list;
+    private int currentVersion;
 
     public NaivePersistentList() {
-        this.list = new ArrayList<>();
+        list = new ArrayList<>();
         currentVersion = 0;
     }
 
@@ -66,6 +65,11 @@ public class NaivePersistentList implements PersistentListI {
     @Override
     public IteratorI getTail(int version) {
         return new NaiveIterator(list.get(version), list.get(version).size() - 1);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return list.get(currentVersion).size() == 0;
     }
 
     @Override
