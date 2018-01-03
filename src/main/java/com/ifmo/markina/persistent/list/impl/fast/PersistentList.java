@@ -131,7 +131,7 @@ public class PersistentList implements PersistentListI {
         FatNode newFatNode = recRight(null, fatNode);
         tails.add(newFatNode);
     }
-
+    // TODO как обределить, что версия подвершины принадлежит последней версии
     private void copyHead() {
         if (heads.size() == currentVersion + 1) {
             return;
