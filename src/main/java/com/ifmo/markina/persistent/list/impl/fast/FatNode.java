@@ -22,20 +22,20 @@ public class FatNode<E> {
 
     void setFirst(Node<E> first) {
         if (this.first != null) {
-            throw new IllegalArgumentException("First small node in node already exist");
+            throw new IllegalArgumentException("First node in fat node already exist");
         }
         this.first = first;
     }
 
     void setSecond(Node<E> second) {
         if (this.second != null) {
-            throw new IllegalArgumentException("Second small node in node already exist");
+            throw new IllegalArgumentException("Second node in fat node already exist");
         }
         this.second = second;
     }
 
-    Node<E> getSmallNode(int version) {
-        if (hasSecondSmallNode()) {
+    Node<E> getNode(int version) {
+        if (hasSecondNode()) {
             if (second.getVersion() <= version) {
                 return second;
             } else {
@@ -46,7 +46,7 @@ public class FatNode<E> {
         }
     }
 
-    boolean hasSecondSmallNode() {
+    boolean hasSecondNode() {
         return second != null;
     }
 }

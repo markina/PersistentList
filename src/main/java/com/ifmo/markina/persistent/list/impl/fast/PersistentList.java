@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class PersistentList<E> implements IPersistentList<E> { // tODO add abstract ?
+public class PersistentList<E> implements IPersistentList<E> {
     private List<FatNode<E>> heads;
     private List<FatNode<E>> tails;
     private int prevVersion;
@@ -24,12 +24,20 @@ public class PersistentList<E> implements IPersistentList<E> { // tODO add abstr
 
     @Override
     public E getFirst(int version) {
-        return getFirstNode(version).getValue();
+        Node<E> node = getFirstNode(version);
+        if (node == null) {
+            throw new NoSuchElementException("List is empty");
+        }
+        return node.getValue();
     }
 
     @Override
     public E getLast(int version) {
-        return getLastNode(version).getValue();
+        Node<E> node = getLastNode(version);
+        if (node == null) {
+            throw new NoSuchElementException("List is empty");
+        }
+        return node.getValue();
     }
 
     @Override
@@ -66,10 +74,9 @@ public class PersistentList<E> implements IPersistentList<E> { // tODO add abstr
             FatNode<E> newFatNode = new FatNode<>();
             Node<E> newNode = new Node<>(value, currentVersion, newFatNode);
             newFatNode.setFirst(newNode);
-            FatNode<E> right = recRight(newNode.getBigBrother(), prev.getNext());
+            recRight(newNode, prev.getNext());
             FatNode<E> left = recLeft(newNode.getBigBrother(), prev.getBigBrother());
             newNode.setPrev(left);
-            newNode.setNext(right);
         }
         size++;
 
@@ -89,7 +96,7 @@ public class PersistentList<E> implements IPersistentList<E> { // tODO add abstr
 
         set(getNode(index, prevVersion), newValue);
 
-        if (heads.size() < currentVersion + 1) {
+        if (heads.size() < currentVersion + 1) { // TODO extract duplicate code
             heads.add(heads.get(prevVersion));
         }
         if (tails.size() < currentVersion + 1) {
@@ -106,7 +113,7 @@ public class PersistentList<E> implements IPersistentList<E> { // tODO add abstr
             throw new IllegalArgumentException("Index out of bounds");
         }
 
-        // TODO size--;
+        size--;
         throw new UnsupportedOperationException("remove"); // TODO remove
 //        if (heads.size() < currentVersion + 1) {
 //            heads.add(heads.get(prevVersion));
@@ -118,7 +125,7 @@ public class PersistentList<E> implements IPersistentList<E> { // tODO add abstr
 
     @Override
     public IIterator<E> getHeadIterator(int version) {
-        if(getFirstNode(version) == null) {
+        if (getFirstNode(version) == null) {
             throw new NoSuchElementException("Element is absent");
         }
         return new PersistentListIterator<>(getFirstNode(version), version);
@@ -126,7 +133,7 @@ public class PersistentList<E> implements IPersistentList<E> { // tODO add abstr
 
     @Override
     public IIterator<E> getTailIterator(int version) {
-        if(getLastNode(version) == null) {
+        if (getLastNode(version) == null) {
             throw new NoSuchElementException("Element is absent");
         }
         return new PersistentListIterator<>(getLastNode(version), version);
@@ -134,63 +141,35 @@ public class PersistentList<E> implements IPersistentList<E> { // tODO add abstr
 
     @Override
     public IIterator<E> getIterator(int index, int version) {
-        if(getNode(index, version) == null) {
+        if (getNode(index, version) == null) {
             throw new NoSuchElementException("Element is absent");
         }
         return new PersistentListIterator<>(getNode(index, version), version);
     }
 
-//    private void copyTail() {
-//        if (tails.size() == currentVersion + 1) {
-//            return;
-//        }
-//        FatNode fatNode = tails.get(prevVersion);
-//        FatNode newFatNode = recRight(null, fatNode);
-//        tails.add(newFatNode);
-//    }// TODO delete
-
-//
-//    private void copyHead() {
-//        if (heads.size() == currentVersion + 1) {
-//            return;
-//        }
-//        FatNode fatNode = heads.get(prevVersion);
-//        FatNode newFatNode = recRight(null, fatNode);
-//        heads.add(newFatNode);
-//    }// TODO delete
-
-//    private void initList(E value) { // TODO delete
-//        final FatNode<E> fatNode = new FatNode<>();
-//        final Node<E> node = new Node<>(value, currentVersion, fatNode);
-//        fatNode.setFirst(node);
-//        heads.add(fatNode);
-//        tails.add(fatNode);
-//    }
-
     // TODO Убрать рекурсию
-    private FatNode<E> recRight(FatNode<E> prevFatNode, FatNode<E> curFatNode) {
+    private void recRight(Node<E> prevFatNode, FatNode<E> curFatNode) {
         if (curFatNode == null) { // it's end of list
-            tails.add(prevFatNode);
-            return null;
+            tails.add(prevFatNode.getBigBrother());
+            return;
         }
 
-        if (!curFatNode.hasSecondSmallNode()) {
+        if (!curFatNode.hasSecondNode()) {
             Node<E> copyNode = new Node<>(curFatNode.getFirst().getValue(), currentVersion, curFatNode);
-            copyNode.setPrev(prevFatNode);
+            copyNode.setPrev(prevFatNode.getBigBrother());
             if (curFatNode.getFirst().getNext() == null) {
                 tails.add(curFatNode);
             }
             copyNode.setNext(curFatNode.getFirst().getNext());
             curFatNode.setSecond(copyNode);
-            return curFatNode;
+            prevFatNode.setNext(curFatNode);
         } else {
             FatNode<E> newFatNode = new FatNode<>();
             Node<E> copyNode = new Node<>(curFatNode.getSecond().getValue(), currentVersion, newFatNode);
             newFatNode.setFirst(copyNode);
-            copyNode.setPrev(prevFatNode);
-            FatNode<E> right = recRight(newFatNode, curFatNode.getSecond().getNext());
-            copyNode.setNext(right);
-            return newFatNode;
+            copyNode.setPrev(prevFatNode.getBigBrother());
+            recRight(copyNode, curFatNode.getSecond().getNext());
+            prevFatNode.setNext(newFatNode);
         }
     }
 
@@ -201,7 +180,7 @@ public class PersistentList<E> implements IPersistentList<E> { // tODO add abstr
             return null;
         }
 
-        if (!curFatNode.hasSecondSmallNode()) {
+        if (!curFatNode.hasSecondNode()) {
             Node<E> copyNode = new Node<>(curFatNode.getFirst().getValue(), currentVersion, curFatNode);
             if (curFatNode.getFirst().getPrev() == null) { // curFatNode is head
                 heads.add(curFatNode);
@@ -227,8 +206,7 @@ public class PersistentList<E> implements IPersistentList<E> { // tODO add abstr
         fatNode.setFirst(node);
         heads.add(fatNode);
 
-        FatNode<E> rightFatNode = recRight(fatNode, heads.get(prevVersion));
-        node.setNext(rightFatNode);
+        recRight(node, heads.get(prevVersion));
     }
 
     private void addTail(E value) {
@@ -242,21 +220,19 @@ public class PersistentList<E> implements IPersistentList<E> { // tODO add abstr
     }
 
     private void set(Node<E> node, E newValue) {
-        if (!node.getBigBrother().hasSecondSmallNode()) {
+        if (!node.getBigBrother().hasSecondNode()) {
             Node<E> copyNode = new Node<>(newValue, currentVersion, node.getBigBrother());
             node.getBigBrother().setSecond(copyNode);
-            FatNode<E> right = recRight(node.getBigBrother(), node.getNext());
+            recRight(copyNode, node.getNext());
             FatNode<E> left = recLeft(node.getBigBrother(), node.getPrev());
             copyNode.setPrev(left);
-            copyNode.setNext(right);
         } else {
             FatNode<E> fatNode = new FatNode<>();
             Node<E> copyNode = new Node<>(newValue, currentVersion, fatNode);
             fatNode.setFirst(copyNode);
-            FatNode<E> right = recRight(fatNode, node.getNext());
+            recRight(copyNode, node.getNext());
             FatNode<E> left = recLeft(fatNode, node.getPrev());
             copyNode.setPrev(left);
-            copyNode.setNext(right);
         }
     }
 
@@ -271,12 +247,12 @@ public class PersistentList<E> implements IPersistentList<E> { // tODO add abstr
             throw new IllegalArgumentException("List with version " + version + " isn't exist.");
         }
 
-        FatNode head = heads.get(version);
+        FatNode<E> head = heads.get(version);
         if (head == null) {
-            return null;
+            return null;// TODO ?
         }
 
-        return head.getSmallNode(version);
+        return head.getNode(version);
     }
 
     /**
@@ -290,20 +266,23 @@ public class PersistentList<E> implements IPersistentList<E> { // tODO add abstr
             throw new IllegalArgumentException("List with version " + version + " isn't exist.");
         }
 
-        FatNode tail = tails.get(version);
+        FatNode<E> tail = tails.get(version);
         if (tail == null) {
-            return null;
+            return null; // TODO ?
         }
 
-        return tail.getSmallNode(version);
+        return tail.getNode(version);
     }
 
     private Node<E> getNode(int index, int version) {
         int curIndex = 0;
         Node<E> node = getFirstNode(version);
+        if (node == null) {
+            throw new NoSuchElementException("List is empty");
+        }
         while (node.hasNext() && curIndex != index) {
             curIndex++;
-            node = node.getNext().getSmallNode(version);
+            node = node.getNext().getNode(version);
         }
         if (curIndex != index) {
             throw new IllegalArgumentException("Index out of bound");

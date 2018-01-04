@@ -51,7 +51,7 @@ public class Node<E> {
         if(next == null) {
             throw new IllegalArgumentException("Next isn't exist");
         }
-        return next.getSmallNode(version);
+        return next.getNode(version);
     }
 
     boolean hasNext() {

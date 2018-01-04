@@ -28,7 +28,7 @@ public class PersistentListIterator<E> implements IIterator<E> {
         if (!hasNext()) {
             throw new NoSuchElementException("Next element is absent");
         }
-        it = it.getNext().getSmallNode(version);
+        it = it.getNext().getNode(version);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class PersistentListIterator<E> implements IIterator<E> {
         if (!hasPrev()) {
             throw new NoSuchElementException("Prev element is absent");
         }
-        it = it.getPrev().getSmallNode(version);
+        it = it.getPrev().getNode(version);
     }
 
     @Override
