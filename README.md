@@ -25,18 +25,35 @@
 следовательно, амортизационная стоимость - O(1).  
 
 ```
-Iterator add(IteratorI it, int value); 
-IteratorI edit(IteratorI it, int value);
-IteratorI remove(IteratorI it); 
-IteratorI getHead(int version);
-IteratorI getTail(int version);
-IteratorI get(int index); 
-IteratorI get(int index, int version);
-void add(int index, int value);
-void edit(int index, int newValue);
-void remove(int index); 
-boolean isEmpty();
+E getFirst(int version);
+E getLast(int version);
+E get(int index, int version);
+
+E getFirst();
+E getLast();
+E get(int index);
+```
+```
 int getCurrentVersion();
+int getCurrentSize();
+```
+```
+boolean isEmpty(int version);
+boolean isEmpty();
+```
+```
+void add(int index, E value);
+void set(int index, E newValue);
+void remove(int index);
+```
+```
+IIterator<E> getHeadIterator(int version);
+IIterator<E> getTailIterator(int version);
+IIterator<E> getIterator(int index, int version);
+
+IIterator<E> getHeadIterator();
+IIterator<E> getTailIterator();
+IIterator<E> getIterator(int index);
 ```
 См. документацию для деталей.
 
@@ -50,7 +67,7 @@ boolean hasNext();
 boolean hasPrev();
 void next();
 void prev();
-int getValue();
+E getValue();
 ```
 См. документацию для деталей.
 

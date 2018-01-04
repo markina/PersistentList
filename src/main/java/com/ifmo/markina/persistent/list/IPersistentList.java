@@ -87,6 +87,10 @@ public interface IPersistentList<E> {
         return getTailIterator(getCurrentVersion());
     }
 
+    default IIterator<E> getIterator(int index) {
+        return getIterator(index, getCurrentVersion());
+    }
+
     /**
      * Returns the first element of current version of list.
      *
