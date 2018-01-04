@@ -1,6 +1,6 @@
 package com.ifmo.markina.persistent.list;
 
-public interface IteratorI {
+public interface IIterator<E> {
     boolean hasNext();
 
     boolean hasPrev();
@@ -9,5 +9,5 @@ public interface IteratorI {
 
     void prev();
 
-    int getValue();
+    E getValue();
 }

@@ -1,36 +1,36 @@
 package com.ifmo.markina.persistent.list.impl.fast;
 
-public class Node {
-    private FatNode next;
-    private FatNode prev;
-    private FatNode bigBrother;
+public class Node<E> {
+    private FatNode<E> next;
+    private FatNode<E> prev;
+    private FatNode<E> bigBrother;
 
     private int version;
-    private int value;
+    private E value;
 
-    Node(int value, int version, FatNode bigBrother) {
+    Node(E value, int version, FatNode<E> bigBrother) {
         this.value = value;
         this.version = version;
         this.bigBrother = bigBrother;
     }
 
-    void setNext(FatNode next) {
+    void setNext(FatNode<E> next) {
         this.next = next;
     }
 
-    void setPrev(FatNode prev) {
+    void setPrev(FatNode<E> prev) {
         this.prev = prev;
     }
 
-    FatNode getBigBrother() {
+    FatNode<E> getBigBrother() {
         return bigBrother;
     }
 
-    FatNode getNext() {
+    FatNode<E> getNext() {
         return next;
     }
 
-    FatNode getPrev() {
+    FatNode<E> getPrev() {
         return prev;
     }
 
@@ -43,11 +43,11 @@ public class Node {
         return value + "(" + version + ")";
     }
 
-    int getValue() {
+    E getValue() {
         return value;
     }
 
-    public Node next(int version) {
+    public Node<E> next(int version) {
         if(next == null) {
             throw new IllegalArgumentException("Next isn't exist");
         }

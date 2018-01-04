@@ -1,14 +1,14 @@
 package com.ifmo.markina.persistent.list.impl.fast;
 
-import com.ifmo.markina.persistent.list.IteratorI;
+import com.ifmo.markina.persistent.list.IIterator;
 
 import java.util.NoSuchElementException;
 
-public class PersistentListIterator implements IteratorI {
-    private Node it;
+public class PersistentListIterator<E> implements IIterator<E> {
+    private Node<E> it;
     private int version;
 
-    public PersistentListIterator(Node it, int version) {
+    public PersistentListIterator(Node<E> it, int version) {
         this.it = it;
         this.version = version;
     }
@@ -40,10 +40,14 @@ public class PersistentListIterator implements IteratorI {
     }
 
     @Override
-    public int getValue() {
-        if(it == null) {
+    public E getValue() {
+        if (it == null) {
             throw new NoSuchElementException("Element is absent");
         }
         return it.getValue();
+    }
+
+    public Node getIt() {
+        return it;
     }
 }

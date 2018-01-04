@@ -1,8 +1,8 @@
 package com.ifmo.markina.persistent.list.impl.fast;
 
-public class FatNode {
-    private Node first;
-    private Node second;
+public class FatNode<E> {
+    private Node<E> first;
+    private Node<E> second;
 
     @Override
     public String toString() {
@@ -12,29 +12,29 @@ public class FatNode {
                 '}';
     }
 
-    Node getFirst() {
+    Node<E> getFirst() {
         return first;
     }
 
-    Node getSecond() {
+    Node<E> getSecond() {
         return second;
     }
 
-    void setFirst(Node first) {
+    void setFirst(Node<E> first) {
         if (this.first != null) {
             throw new IllegalArgumentException("First small node in node already exist");
         }
         this.first = first;
     }
 
-    void setSecond(Node second) {
+    void setSecond(Node<E> second) {
         if (this.second != null) {
             throw new IllegalArgumentException("Second small node in node already exist");
         }
         this.second = second;
     }
 
-    Node getSmallNode(int version) {
+    Node<E> getSmallNode(int version) {
         if (hasSecondSmallNode()) {
             if (second.getVersion() <= version) {
                 return second;

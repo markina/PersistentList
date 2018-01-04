@@ -1,30 +1,24 @@
 package com.ifmo.markina.persistent.list.impl.naive;
 
-import com.ifmo.markina.persistent.list.IteratorI;
-import com.ifmo.markina.persistent.list.PersistentListI;
+import com.ifmo.markina.persistent.list.IIterator;
+import com.ifmo.markina.persistent.list.IPersistentList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
-public class NaivePersistentList implements PersistentListI {
-    private List<List<Integer>> list;
+public class NaivePersistentList<E> implements IPersistentList<E> {
+    private List<List<E>> list;
     private int currentVersion;
 
     public NaivePersistentList() {
         list = new ArrayList<>();
+        list.add(new ArrayList<>());
         currentVersion = 0;
     }
 
     @Override
-    public IteratorI get(int index, int version) {
-        if (list.size() < version + 1) {
-            throw new IndexOutOfBoundsException("index out of bounds");
-        }
-        return new NaiveIterator(list.get(version), index);
-    }
-
-    @Override
-    public void add(int index, int value) {
+    public void add(int index, E value) {
         currentVersion++;
         if (list.size() != 0) {
             list.add(new ArrayList<>(list.get(list.size() - 1)));
@@ -36,7 +30,7 @@ public class NaivePersistentList implements PersistentListI {
     }
 
     @Override
-    public void edit(int index, int newValue) {
+    public void set(int index, E newValue) {
         currentVersion++;
         if (list.size() != 0) {
             list.add(new ArrayList<>(list.get(list.size() - 1)));
@@ -58,13 +52,27 @@ public class NaivePersistentList implements PersistentListI {
     }
 
     @Override
-    public IteratorI getHead(int version) {
-        return new NaiveIterator(list.get(version), 0);
+    public IIterator<E> getHeadIterator(int version) {
+        if(list.get(version).isEmpty()) {
+            throw new NoSuchElementException("Element is absent");
+        }
+        return new NaiveIterator<>(list.get(version), 0);
     }
 
     @Override
-    public IteratorI getTail(int version) {
-        return new NaiveIterator(list.get(version), list.get(version).size() - 1);
+    public IIterator<E> getTailIterator(int version) {
+        if(list.get(version).isEmpty()) {
+            throw new NoSuchElementException("Element is absent");
+        }
+        return new NaiveIterator<>(list.get(version), list.get(version).size() - 1);
+    }
+
+    @Override
+    public IIterator<E> getIterator(int index, int version) {
+        if(list.get(version).isEmpty()) {
+            throw new NoSuchElementException("Element is absent");
+        }
+        return new NaiveIterator<>(list.get(version), index);
     }
 
     @Override
@@ -73,7 +81,32 @@ public class NaivePersistentList implements PersistentListI {
     }
 
     @Override
+    public E getFirst(int version) {
+        return getHeadIterator(version).getValue();
+    }
+
+    @Override
+    public E getLast(int version) {
+        return getTailIterator(version).getValue();
+    }
+
+    @Override
+    public E get(int index, int version) {
+        return getIterator(index, version).getValue();
+    }
+
+    @Override
     public int getCurrentVersion() {
         return currentVersion;
+    }
+
+    @Override
+    public int getCurrentSize() {
+        return list.get(getCurrentVersion()).size();
+    }
+
+    @Override
+    public boolean isEmpty(int version) {
+        return list.get(version).size() == 0;
     }
 }
