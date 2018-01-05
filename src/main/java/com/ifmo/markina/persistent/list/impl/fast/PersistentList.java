@@ -74,8 +74,8 @@ public class PersistentList<E> implements IPersistentList<E> {
             FatNode<E> newFatNode = new FatNode<>();
             Node<E> newNode = new Node<>(value, currentVersion, newFatNode);
             newFatNode.setFirst(newNode);
-            recRight(newNode, prev.getNext());
-            recLeft(newNode, prev.getBigBrother());
+            linkToRight(newNode, prev.getNext());
+            linkToLeft(newNode, prev.getBigBrother());
         }
         size++;
 
@@ -146,7 +146,7 @@ public class PersistentList<E> implements IPersistentList<E> {
         return new PersistentListIterator<>(getNode(index, version), version);
     }
 
-    private void recRight(Node<E> leftNode, FatNode<E> toModifyFatNode) { // TODO rename
+    private void linkToRight(Node<E> leftNode, FatNode<E> toModifyFatNode) {
         if (toModifyFatNode == null) { // it's end of list
             tails.add(leftNode.getBigBrother());
             return;
@@ -158,7 +158,7 @@ public class PersistentList<E> implements IPersistentList<E> {
             newFatNode.setFirst(newNode);
             newNode.setPrev(leftNode.getBigBrother());
             leftNode.setNext(newFatNode);
-            recRight(newNode, toModifyFatNode.getSecond().getNext());
+            linkToRight(newNode, toModifyFatNode.getSecond().getNext());
         } else {
             Node<E> newNode = new Node<>(toModifyFatNode.getFirst().getValue(), currentVersion, toModifyFatNode);
             toModifyFatNode.setSecond(newNode);
@@ -172,7 +172,7 @@ public class PersistentList<E> implements IPersistentList<E> {
         }
     }
 
-    private void recLeft(Node<E> rightNode, FatNode<E> toModifyFatNode) { // TODO rename
+    private void linkToLeft(Node<E> rightNode, FatNode<E> toModifyFatNode) {
         if (toModifyFatNode == null) { // it's start of list
             heads.add(rightNode.getBigBrother());
             return;
@@ -184,7 +184,7 @@ public class PersistentList<E> implements IPersistentList<E> {
             newFatNode.setFirst(newNode);
             newNode.setNext(rightNode.getBigBrother());
             rightNode.setPrev(newFatNode);
-            recLeft(newNode, toModifyFatNode.getSecond().getPrev());
+            linkToLeft(newNode, toModifyFatNode.getSecond().getPrev());
         } else {
             Node<E> newNode = new Node<>(toModifyFatNode.getFirst().getValue(), currentVersion, toModifyFatNode);
             toModifyFatNode.setSecond(newNode);
@@ -203,7 +203,7 @@ public class PersistentList<E> implements IPersistentList<E> {
         fatNode.setFirst(node);
         heads.add(fatNode);
 
-        recRight(node, heads.get(prevVersion));
+        linkToRight(node, heads.get(prevVersion));
     }
 
     private void addTail(E value) {
@@ -212,7 +212,7 @@ public class PersistentList<E> implements IPersistentList<E> {
         fatNode.setFirst(node);
         tails.add(fatNode);
 
-        recLeft(node, tails.get(prevVersion));
+        linkToLeft(node, tails.get(prevVersion));
     }
 
     private void set(Node<E> node, E newValue) {
@@ -220,13 +220,13 @@ public class PersistentList<E> implements IPersistentList<E> {
             FatNode<E> newFatNode = new FatNode<>();
             Node<E> newNode = new Node<>(newValue, currentVersion, newFatNode);
             newFatNode.setFirst(newNode);
-            recRight(newNode, node.getNext());
-            recLeft(newNode, node.getPrev());
+            linkToRight(newNode, node.getNext());
+            linkToLeft(newNode, node.getPrev());
         } else {
             Node<E> newNode = new Node<>(newValue, currentVersion, node.getBigBrother());
             node.getBigBrother().setSecond(newNode);
-            recRight(newNode, node.getNext());
-            recLeft(newNode, node.getPrev());
+            linkToRight(newNode, node.getNext());
+            linkToLeft(newNode, node.getPrev());
         }
     }
 

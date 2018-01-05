@@ -8,7 +8,7 @@ public class PersistentListIterator<E> implements IIterator<E> {
     private Node<E> it;
     private int version;
 
-    public PersistentListIterator(Node<E> it, int version) {
+    PersistentListIterator(Node<E> it, int version) {
         this.it = it;
         this.version = version;
     }
