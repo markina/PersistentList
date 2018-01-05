@@ -75,8 +75,7 @@ public class PersistentList<E> implements IPersistentList<E> {
             Node<E> newNode = new Node<>(value, currentVersion, newFatNode);
             newFatNode.setFirst(newNode);
             recRight(newNode, prev.getNext());
-            FatNode<E> left = recLeft(newNode.getBigBrother(), prev.getBigBrother());
-            newNode.setPrev(left);
+            recLeft(newNode, prev.getBigBrother());
         }
         size++;
 
@@ -147,56 +146,54 @@ public class PersistentList<E> implements IPersistentList<E> {
         return new PersistentListIterator<>(getNode(index, version), version);
     }
 
-    // TODO Убрать рекурсию
-    private void recRight(Node<E> prevFatNode, FatNode<E> curFatNode) {
-        if (curFatNode == null) { // it's end of list
-            tails.add(prevFatNode.getBigBrother());
+    private void recRight(Node<E> leftNode, FatNode<E> toModifyFatNode) { // TODO rename
+        if (toModifyFatNode == null) { // it's end of list
+            tails.add(leftNode.getBigBrother());
             return;
         }
 
-        if (!curFatNode.hasSecondNode()) {
-            Node<E> copyNode = new Node<>(curFatNode.getFirst().getValue(), currentVersion, curFatNode);
-            copyNode.setPrev(prevFatNode.getBigBrother());
-            if (curFatNode.getFirst().getNext() == null) {
-                tails.add(curFatNode);
-            }
-            copyNode.setNext(curFatNode.getFirst().getNext());
-            curFatNode.setSecond(copyNode);
-            prevFatNode.setNext(curFatNode);
-        } else {
+        if (toModifyFatNode.hasSecondNode()) {
             FatNode<E> newFatNode = new FatNode<>();
-            Node<E> copyNode = new Node<>(curFatNode.getSecond().getValue(), currentVersion, newFatNode);
-            newFatNode.setFirst(copyNode);
-            copyNode.setPrev(prevFatNode.getBigBrother());
-            recRight(copyNode, curFatNode.getSecond().getNext());
-            prevFatNode.setNext(newFatNode);
+            Node<E> newNode = new Node<>(toModifyFatNode.getSecond().getValue(), currentVersion, newFatNode);
+            newFatNode.setFirst(newNode);
+            newNode.setPrev(leftNode.getBigBrother());
+            leftNode.setNext(newFatNode);
+            recRight(newNode, toModifyFatNode.getSecond().getNext());
+        } else {
+            Node<E> newNode = new Node<>(toModifyFatNode.getFirst().getValue(), currentVersion, toModifyFatNode);
+            toModifyFatNode.setSecond(newNode);
+            newNode.setPrev(leftNode.getBigBrother());
+            if (toModifyFatNode.getFirst().getNext() == null) {
+                tails.add(toModifyFatNode);
+            }
+            newNode.setNext(toModifyFatNode.getFirst().getNext());
+            newNode.setPrev(leftNode.getBigBrother());
+            leftNode.setNext(toModifyFatNode);
         }
     }
 
-    // TODO Убрать рекурсию
-    private FatNode<E> recLeft(FatNode<E> nextFatNode, FatNode<E> curFatNode) {
-        if (curFatNode == null) { // it's start of list
-            heads.add(nextFatNode);
-            return null;
+    private void recLeft(Node<E> rightNode, FatNode<E> toModifyFatNode) { // TODO rename
+        if (toModifyFatNode == null) { // it's start of list
+            heads.add(rightNode.getBigBrother());
+            return;
         }
 
-        if (!curFatNode.hasSecondNode()) {
-            Node<E> copyNode = new Node<>(curFatNode.getFirst().getValue(), currentVersion, curFatNode);
-            if (curFatNode.getFirst().getPrev() == null) { // curFatNode is head
-                heads.add(curFatNode);
-            }
-            copyNode.setNext(nextFatNode);
-            copyNode.setPrev(curFatNode.getFirst().getPrev());
-            curFatNode.setSecond(copyNode);
-            return curFatNode;
-        } else {
+        if (toModifyFatNode.hasSecondNode()) {
             FatNode<E> newFatNode = new FatNode<>();
-            Node<E> copyNode = new Node<>(curFatNode.getSecond().getValue(), currentVersion, newFatNode);
-            newFatNode.setFirst(copyNode);
-            copyNode.setNext(nextFatNode);
-            FatNode<E> left = recLeft(newFatNode, curFatNode.getSecond().getPrev());
-            copyNode.setPrev(left);
-            return newFatNode;
+            Node<E> newNode = new Node<>(toModifyFatNode.getSecond().getValue(), currentVersion, newFatNode);
+            newFatNode.setFirst(newNode);
+            newNode.setNext(rightNode.getBigBrother());
+            rightNode.setPrev(newFatNode);
+            recLeft(newNode, toModifyFatNode.getSecond().getPrev());
+        } else {
+            Node<E> newNode = new Node<>(toModifyFatNode.getFirst().getValue(), currentVersion, toModifyFatNode);
+            toModifyFatNode.setSecond(newNode);
+            if (toModifyFatNode.getFirst().getPrev() == null) { // curFatNode is head
+                heads.add(toModifyFatNode);
+            }
+            newNode.setPrev(toModifyFatNode.getFirst().getPrev());
+            newNode.setNext(rightNode.getBigBrother());
+            rightNode.setPrev(toModifyFatNode);
         }
     }
 
@@ -215,24 +212,21 @@ public class PersistentList<E> implements IPersistentList<E> {
         fatNode.setFirst(node);
         tails.add(fatNode);
 
-        FatNode<E> leftFatNode = recLeft(fatNode, tails.get(prevVersion));
-        node.setPrev(leftFatNode);
+        recLeft(node, tails.get(prevVersion));
     }
 
     private void set(Node<E> node, E newValue) {
-        if (!node.getBigBrother().hasSecondNode()) {
-            Node<E> copyNode = new Node<>(newValue, currentVersion, node.getBigBrother());
-            node.getBigBrother().setSecond(copyNode);
-            recRight(copyNode, node.getNext());
-            FatNode<E> left = recLeft(node.getBigBrother(), node.getPrev());
-            copyNode.setPrev(left);
+        if (node.getBigBrother().hasSecondNode()) {
+            FatNode<E> newFatNode = new FatNode<>();
+            Node<E> newNode = new Node<>(newValue, currentVersion, newFatNode);
+            newFatNode.setFirst(newNode);
+            recRight(newNode, node.getNext());
+            recLeft(newNode, node.getPrev());
         } else {
-            FatNode<E> fatNode = new FatNode<>();
-            Node<E> copyNode = new Node<>(newValue, currentVersion, fatNode);
-            fatNode.setFirst(copyNode);
-            recRight(copyNode, node.getNext());
-            FatNode<E> left = recLeft(fatNode, node.getPrev());
-            copyNode.setPrev(left);
+            Node<E> newNode = new Node<>(newValue, currentVersion, node.getBigBrother());
+            node.getBigBrother().setSecond(newNode);
+            recRight(newNode, node.getNext());
+            recLeft(newNode, node.getPrev());
         }
     }
 
