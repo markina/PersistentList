@@ -2,7 +2,6 @@ package com.ifmo.markina.persistent.list.impl.fast;
 
 import com.ifmo.markina.persistent.list.*;
 
-import javax.naming.OperationNotSupportedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -104,80 +103,96 @@ public class PersistentList<E> implements IPersistentList<E> {
         }
     }
 
-    // TODO check
     @Override
     public void remove(int index) {
-        throw new IllegalArgumentException("remove"); // TODO remove !!
+        if (isEmpty()) {
+            throw new IllegalArgumentException("Index out of bounds");
+        }
+
+        prevVersion = currentVersion;
+        currentVersion++;
+
+        Node<E> node = getNode(index, prevVersion);
+        FatNode<E> rightFatNode = node.getNext();
+        FatNode<E> leftFatNode = node.getPrev();
+
+        if (leftFatNode == null) {
+            removeHead(node);
+            size--;
+            if (tails.size() < currentVersion + 1) {
+                tails.add(tails.get(prevVersion));
+            }
+            return;
+        }
+        if (rightFatNode == null) {
+            removeTail(node);
+            size--;
+            if (heads.size() < currentVersion + 1) {
+                heads.add(heads.get(prevVersion));
+            }
+            return;
+        }
+
+        Node<E> rightNode = createNode(rightFatNode);
+        Node<E> leftNode = createNode(leftFatNode);
+
+        rightNode.setPrev(leftNode.getBigBrother());
+        leftNode.setNext(rightNode.getBigBrother());
+
+        if (rightNode.getBigBrother().hasSecondNode()) {
+            if (rightFatNode.getFirst().getNext() == null) {
+                tails.add(rightNode.getBigBrother());
+            }
+            rightNode.setNext(rightFatNode.getFirst().getNext());
+        } else {
+            linkToRight(rightNode, rightFatNode.getSecond().getNext());
+        }
+
+        if (leftNode.getBigBrother().hasSecondNode()) {
+            if (leftFatNode.getFirst().getPrev() == null) {
+                heads.add(leftNode.getBigBrother());
+            }
+            leftNode.setPrev(leftFatNode.getFirst().getPrev());
+        } else {
+            linkToLeft(leftNode, leftFatNode.getSecond().getPrev());
+        }
+
+        size--;
+        if (heads.size() < currentVersion + 1) {
+            heads.add(heads.get(prevVersion));
+        }
+        if (tails.size() < currentVersion + 1) {
+            tails.add(tails.get(prevVersion));
+        }
     }
-//        prevVersion = currentVersion;
-//        currentVersion++;
-//
-//        if (isEmpty()) {
-//            throw new IllegalArgumentException("Index out of bounds");
-//        }
-//
-//        Node<E> node = getNode(index, prevVersion);
-//        FatNode<E> rightFatNode = node.getNext();
-//        FatNode<E> leftFatNode = node.getPrev();
-//
-//        Node<E> rightNode = null;
-//        Node<E> leftNode = null;
-//
-//        if (rightFatNode != null && rightFatNode.hasSecondNode()) {
-//            FatNode<E> newFatNode = new FatNode<>();
-//            rightNode = new Node<>(rightFatNode.getSecond().getValue(), currentVersion, newFatNode);
-//            newFatNode.setFirst(rightNode);
-//            rightNode.setPrev(leftFatNode);
-//            linkToRight(rightNode, rightFatNode.getSecond().getNext());
-//        } else if (rightFatNode != null && !rightFatNode.hasSecondNode()) {
-//            rightNode = new Node<>(rightFatNode.getFirst().getValue(), currentVersion, rightFatNode);
-//            rightFatNode.setSecond(rightNode);
-//            rightNode.setPrev(leftFatNode);
-//            if (rightFatNode.getFirst().getNext() == null) {
-//                tails.add(rightFatNode);
-//            }
-//            rightNode.setNext(rightFatNode.getFirst().getNext());
-//        }
-//
-//        if (leftFatNode != null && leftFatNode.hasSecondNode()) {
-//            FatNode<E> newFatNode = new FatNode<>();
-//            leftNode = new Node<>(leftFatNode.getSecond().getValue(), currentVersion, newFatNode);
-//            newFatNode.setFirst(leftNode);
-//            leftNode.setNext(rightFatNode);
-//            linkToLeft(leftNode, leftFatNode.getSecond().getPrev());
-//        } else if (leftFatNode != null && !leftFatNode.hasSecondNode()) {
-//            leftNode = new Node<>(leftFatNode.getFirst().getValue(), currentVersion, leftFatNode);
-//            leftFatNode.setSecond(leftNode);
-//            leftNode.setNext(rightFatNode);
-//            if (leftFatNode.getFirst().getPrev() == null) {
-//                heads.add(leftFatNode);
-//            }
-//            leftNode.setPrev(leftFatNode.getFirst().getPrev());
-//        }
-//
-//        if (rightNode != null) {
-//            rightNode.setPrev(leftNode == null ? null : leftNode.getBigBrother());
-//        }
-//
-//        if (leftNode != null) {
-//            leftNode.setNext(rightNode == null ? null : rightNode.getBigBrother());
-//        }
-//
-//        if (leftFatNode == null) {
-//            heads.add(rightFatNode);
-//        }
-//        if (rightFatNode == null) {
-//            tails.add(leftFatNode);
-//        }
-//
-//        size--;
-//        if (heads.size() < currentVersion + 1) {
-//            heads.add(heads.get(prevVersion));
-//        }
-//        if (tails.size() < currentVersion + 1) {
-//            tails.add(tails.get(prevVersion));
-//        }
-//    }
+
+    private void removeHead(Node<E> head) {
+        if (!head.hasNext()) {
+            heads.add(null);
+            tails.add(null);
+        } else {
+            Node<E> newNode = createNode(head.getNext());
+            newNode.setNext(head.getNext().getNode(prevVersion).getNext());
+            heads.add(newNode.getBigBrother());
+            if (!newNode.getBigBrother().hasSecondNode()) {
+                linkToRight(newNode, head.getNext().getSecond().getNext());
+            }
+        }
+    }
+
+    private void removeTail(Node<E> tail) {
+        if (!tail.hasPrev()) {
+            heads.add(null);
+            tails.add(null);
+        } else {
+            Node<E> newNode = createNode(tail.getPrev());
+            newNode.setPrev(tail.getPrev().getNode(prevVersion).getPrev());
+            tails.add(newNode.getBigBrother());
+            if (!newNode.getBigBrother().hasSecondNode()) {
+                linkToLeft(newNode, tail.getPrev().getSecond().getPrev());
+            }
+        }
+    }
 
     @Override
     public IIterator<E> getHeadIterator(int version) {

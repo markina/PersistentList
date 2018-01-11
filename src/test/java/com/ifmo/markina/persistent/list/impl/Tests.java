@@ -21,26 +21,10 @@ public class Tests {
         PersistentList<Integer> persistentList = new PersistentList<>();
 
         for (int i = 0; i < 100; i++) {
-            if (!naivePersistentList.isEmpty()) {
-                System.out.println(getListByIterator(naivePersistentList.getHeadIterator()));
-                System.out.println(getListByIterator(persistentList.getHeadIterator()));
-            }
             add(random.nextInt(i + 1), random.nextInt(1000), naivePersistentList, persistentList);
         }
 
-        for (int version = 0; version <= persistentList.getCurrentVersion(); version++) {
-            if (!naivePersistentList.isEmpty(version)) {
-                System.out.println(getListByIterator(naivePersistentList.getHeadIterator(version)));
-                System.out.println(getListByIterator(persistentList.getHeadIterator(version)));
-                assertEquals("Invalid list",
-                        getListByIterator(naivePersistentList.getHeadIterator(version)),
-                        getListByIterator(persistentList.getHeadIterator(version)));
-            } else {
-                assertTrue("List isn't empty", naivePersistentList.isEmpty(version));
-                assertTrue("List isn't empty", persistentList.isEmpty(version));
-            }
-        }
-
+        assertEqualsList(persistentList, naivePersistentList);
     }
 
     @Test
@@ -53,28 +37,53 @@ public class Tests {
         }
 
         for (int i = 0; i < 100; i++) {
-            edit(random.nextInt(100), random.nextInt(1000), naivePersistentList, persistentList);
+            set(random.nextInt(100), random.nextInt(1000), naivePersistentList, persistentList);
         }
-
-        for (int version = 0; version <= persistentList.getCurrentVersion(); version++) {
-            if(!naivePersistentList.isEmpty(version)) {
-                assertEquals("Invalid list",
-                        getListByIterator(naivePersistentList.getHeadIterator(version)),
-                        getListByIterator(persistentList.getHeadIterator(version)));
-            } else {
-                assertTrue("List isn't empty", naivePersistentList.isEmpty(version));
-                assertTrue("List isn't empty", persistentList.isEmpty(version));
-            }
-        }
-
+        assertEqualsList(persistentList, naivePersistentList);
     }
 
-//    @Test
-    // TODO add test "removeTest"
+    @Test
+    public void removeTest() {
+        NaivePersistentList<Integer> naivePersistentList = new NaivePersistentList<>();
+        PersistentList<Integer> persistentList = new PersistentList<>();
 
-    private void edit(int index, Integer value,
-                      NaivePersistentList<Integer> naivePersistentList,
-                      PersistentList<Integer> persistentList) {
+        for (int i = 0; i < 10; i++) {
+            add(random.nextInt(i + 1), random.nextInt(1000), naivePersistentList, persistentList);
+//            if (!naivePersistentList.isEmpty()) {
+//                System.out.println(getListByIterator(naivePersistentList.getHeadIterator()));
+//                System.out.println(getListByIterator(persistentList.getHeadIterator()));
+//            }
+        }
+
+        for (int i = 10 - 1; i > 0; i--) {
+            remove(random.nextInt(i), naivePersistentList, persistentList);
+        }
+
+        assertEqualsList(persistentList, naivePersistentList);
+    }
+
+    private void assertEqualsList(PersistentList<Integer> actual, NaivePersistentList<Integer> expected) {
+        for (int version = 0; version <= expected.getCurrentVersion(); version++) {
+            if (!expected.isEmpty(version)) {
+                assertEquals("Invalid list",
+                        getListByIterator(expected.getHeadIterator(version)),
+                        getListByIterator(actual.getHeadIterator(version)));
+            } else {
+                assertTrue("List isn't empty", actual.isEmpty(version));
+            }
+        }
+    }
+
+    private void remove(int index,
+                        NaivePersistentList<Integer> naivePersistentList,
+                        PersistentList<Integer> persistentList) {
+        naivePersistentList.remove(index);
+        persistentList.remove(index);
+    }
+
+    private void set(int index, Integer value,
+                     NaivePersistentList<Integer> naivePersistentList,
+                     PersistentList<Integer> persistentList) {
         naivePersistentList.set(index, value);
         persistentList.set(index, value);
     }
