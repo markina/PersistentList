@@ -236,22 +236,18 @@ public class PersistentList<E> implements IPersistentList<E> {
         }
 
         if (toModifyFatNode.hasSecondNode()) {
-            FatNode<E> newFatNode = new FatNode<>();
-            Node<E> newNode = new Node<>(toModifyFatNode.getSecond().getValue(), currentVersion, newFatNode);
-            newFatNode.setFirst(newNode);
+            Node<E> newNode = createNode(toModifyFatNode);
             newNode.setPrev(leftNode.getBigBrother());
-            leftNode.setNext(newFatNode);
+            leftNode.setNext(newNode.getBigBrother());
             linkToRight(newNode, toModifyFatNode.getSecond().getNext());
         } else {
-            Node<E> newNode = new Node<>(toModifyFatNode.getFirst().getValue(), currentVersion, toModifyFatNode);
-            toModifyFatNode.setSecond(newNode);
-            newNode.setPrev(leftNode.getBigBrother());
+            Node<E> newNode = createNode(toModifyFatNode);
             if (toModifyFatNode.getFirst().getNext() == null) {
                 tails.add(toModifyFatNode);
             }
-            newNode.setNext(toModifyFatNode.getFirst().getNext());
             newNode.setPrev(leftNode.getBigBrother());
-            leftNode.setNext(toModifyFatNode);
+            newNode.setNext(toModifyFatNode.getFirst().getNext());
+            leftNode.setNext(newNode.getBigBrother());
         }
     }
 
@@ -262,15 +258,12 @@ public class PersistentList<E> implements IPersistentList<E> {
         }
 
         if (toModifyFatNode.hasSecondNode()) {
-            FatNode<E> newFatNode = new FatNode<>();
-            Node<E> newNode = new Node<>(toModifyFatNode.getSecond().getValue(), currentVersion, newFatNode);
-            newFatNode.setFirst(newNode);
+            Node<E> newNode = createNode(toModifyFatNode);
             rightNode.setPrev(newNode.getBigBrother());
             newNode.setNext(rightNode.getBigBrother());
             linkToLeft(newNode, toModifyFatNode.getSecond().getPrev());
         } else {
-            Node<E> newNode = new Node<>(toModifyFatNode.getFirst().getValue(), currentVersion, toModifyFatNode);
-            toModifyFatNode.setSecond(newNode);
+            Node<E> newNode = createNode(toModifyFatNode);
             if (toModifyFatNode.getFirst().getPrev() == null) { // curFatNode is head
                 heads.add(toModifyFatNode);
             }
