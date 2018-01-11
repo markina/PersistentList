@@ -217,16 +217,9 @@ public class PersistentList<E> implements IPersistentList<E> {
     }
 
     private Node<E> createNode(FatNode<E> fatNode) { // TODO rename
-        Node<E> newNode;
-        if (fatNode.hasSecondNode()) {
-            FatNode<E> newFatNode = new FatNode<>();
-            newNode = new Node<>(fatNode.getSecond().getValue(), currentVersion, newFatNode);
-            newFatNode.setFirst(newNode);
-        } else {
-            newNode = new Node<>(fatNode.getFirst().getValue(), currentVersion, fatNode);
-            fatNode.setSecond(newNode);
-        }
-        return newNode;
+        return createNode(fatNode, fatNode.hasSecondNode()
+                ? fatNode.getSecond().getValue()
+                : fatNode.getFirst().getValue()); // TODO extract to Node "getLastValue" ?
     }
 
     private void linkToRight(Node<E> leftNode, FatNode<E> toModifyFatNode) {
