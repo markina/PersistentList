@@ -2,6 +2,7 @@ package com.ifmo.markina.persistent.list.impl.fast;
 
 import com.ifmo.markina.persistent.list.*;
 
+import javax.naming.OperationNotSupportedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -103,24 +104,80 @@ public class PersistentList<E> implements IPersistentList<E> {
         }
     }
 
-    @Override // TODO
+    // TODO check
+    @Override
     public void remove(int index) {
-        prevVersion = currentVersion;
-        currentVersion++;
-
-        if (isEmpty()) {
-            throw new IllegalArgumentException("Index out of bounds");
-        }
-
-        size--;
-        throw new UnsupportedOperationException("remove"); // TODO remove
+        throw new IllegalArgumentException("remove"); // TODO remove !!
+    }
+//        prevVersion = currentVersion;
+//        currentVersion++;
+//
+//        if (isEmpty()) {
+//            throw new IllegalArgumentException("Index out of bounds");
+//        }
+//
+//        Node<E> node = getNode(index, prevVersion);
+//        FatNode<E> rightFatNode = node.getNext();
+//        FatNode<E> leftFatNode = node.getPrev();
+//
+//        Node<E> rightNode = null;
+//        Node<E> leftNode = null;
+//
+//        if (rightFatNode != null && rightFatNode.hasSecondNode()) {
+//            FatNode<E> newFatNode = new FatNode<>();
+//            rightNode = new Node<>(rightFatNode.getSecond().getValue(), currentVersion, newFatNode);
+//            newFatNode.setFirst(rightNode);
+//            rightNode.setPrev(leftFatNode);
+//            linkToRight(rightNode, rightFatNode.getSecond().getNext());
+//        } else if (rightFatNode != null && !rightFatNode.hasSecondNode()) {
+//            rightNode = new Node<>(rightFatNode.getFirst().getValue(), currentVersion, rightFatNode);
+//            rightFatNode.setSecond(rightNode);
+//            rightNode.setPrev(leftFatNode);
+//            if (rightFatNode.getFirst().getNext() == null) {
+//                tails.add(rightFatNode);
+//            }
+//            rightNode.setNext(rightFatNode.getFirst().getNext());
+//        }
+//
+//        if (leftFatNode != null && leftFatNode.hasSecondNode()) {
+//            FatNode<E> newFatNode = new FatNode<>();
+//            leftNode = new Node<>(leftFatNode.getSecond().getValue(), currentVersion, newFatNode);
+//            newFatNode.setFirst(leftNode);
+//            leftNode.setNext(rightFatNode);
+//            linkToLeft(leftNode, leftFatNode.getSecond().getPrev());
+//        } else if (leftFatNode != null && !leftFatNode.hasSecondNode()) {
+//            leftNode = new Node<>(leftFatNode.getFirst().getValue(), currentVersion, leftFatNode);
+//            leftFatNode.setSecond(leftNode);
+//            leftNode.setNext(rightFatNode);
+//            if (leftFatNode.getFirst().getPrev() == null) {
+//                heads.add(leftFatNode);
+//            }
+//            leftNode.setPrev(leftFatNode.getFirst().getPrev());
+//        }
+//
+//        if (rightNode != null) {
+//            rightNode.setPrev(leftNode == null ? null : leftNode.getBigBrother());
+//        }
+//
+//        if (leftNode != null) {
+//            leftNode.setNext(rightNode == null ? null : rightNode.getBigBrother());
+//        }
+//
+//        if (leftFatNode == null) {
+//            heads.add(rightFatNode);
+//        }
+//        if (rightFatNode == null) {
+//            tails.add(leftFatNode);
+//        }
+//
+//        size--;
 //        if (heads.size() < currentVersion + 1) {
 //            heads.add(heads.get(prevVersion));
 //        }
 //        if (tails.size() < currentVersion + 1) {
 //            tails.add(tails.get(prevVersion));
 //        }
-    }
+//    }
 
     @Override
     public IIterator<E> getHeadIterator(int version) {
@@ -144,6 +201,32 @@ public class PersistentList<E> implements IPersistentList<E> {
             throw new NoSuchElementException("Element is absent");
         }
         return new PersistentListIterator<>(getNode(index, version), version);
+    }
+
+    private Node<E> createNode(FatNode<E> fatNode, E value) {  // TODO rename
+        Node<E> newNode;
+        if (fatNode.hasSecondNode()) {
+            FatNode<E> newFatNode = new FatNode<>();
+            newNode = new Node<>(value, currentVersion, newFatNode);
+            newFatNode.setFirst(newNode);
+        } else {
+            newNode = new Node<>(value, currentVersion, fatNode);
+            fatNode.setSecond(newNode);
+        }
+        return newNode;
+    }
+
+    private Node<E> createNode(FatNode<E> fatNode) { // TODO rename
+        Node<E> newNode;
+        if (fatNode.hasSecondNode()) {
+            FatNode<E> newFatNode = new FatNode<>();
+            newNode = new Node<>(fatNode.getSecond().getValue(), currentVersion, newFatNode);
+            newFatNode.setFirst(newNode);
+        } else {
+            newNode = new Node<>(fatNode.getFirst().getValue(), currentVersion, fatNode);
+            fatNode.setSecond(newNode);
+        }
+        return newNode;
     }
 
     private void linkToRight(Node<E> leftNode, FatNode<E> toModifyFatNode) {
@@ -182,8 +265,8 @@ public class PersistentList<E> implements IPersistentList<E> {
             FatNode<E> newFatNode = new FatNode<>();
             Node<E> newNode = new Node<>(toModifyFatNode.getSecond().getValue(), currentVersion, newFatNode);
             newFatNode.setFirst(newNode);
+            rightNode.setPrev(newNode.getBigBrother());
             newNode.setNext(rightNode.getBigBrother());
-            rightNode.setPrev(newFatNode);
             linkToLeft(newNode, toModifyFatNode.getSecond().getPrev());
         } else {
             Node<E> newNode = new Node<>(toModifyFatNode.getFirst().getValue(), currentVersion, toModifyFatNode);
@@ -193,7 +276,7 @@ public class PersistentList<E> implements IPersistentList<E> {
             }
             newNode.setPrev(toModifyFatNode.getFirst().getPrev());
             newNode.setNext(rightNode.getBigBrother());
-            rightNode.setPrev(toModifyFatNode);
+            rightNode.setPrev(newNode.getBigBrother());
         }
     }
 
@@ -216,18 +299,9 @@ public class PersistentList<E> implements IPersistentList<E> {
     }
 
     private void set(Node<E> node, E newValue) {
-        if (node.getBigBrother().hasSecondNode()) {
-            FatNode<E> newFatNode = new FatNode<>();
-            Node<E> newNode = new Node<>(newValue, currentVersion, newFatNode);
-            newFatNode.setFirst(newNode);
-            linkToRight(newNode, node.getNext());
-            linkToLeft(newNode, node.getPrev());
-        } else {
-            Node<E> newNode = new Node<>(newValue, currentVersion, node.getBigBrother());
-            node.getBigBrother().setSecond(newNode);
-            linkToRight(newNode, node.getNext());
-            linkToLeft(newNode, node.getPrev());
-        }
+        Node<E> newNode = createNode(node.getBigBrother(), newValue);
+        linkToRight(newNode, node.getNext());
+        linkToLeft(newNode, node.getPrev());
     }
 
     /**

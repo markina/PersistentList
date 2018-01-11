@@ -69,6 +69,9 @@ public class Tests {
 
     }
 
+//    @Test
+    // TODO add test "removeTest"
+
     private void edit(int index, Integer value,
                       NaivePersistentList<Integer> naivePersistentList,
                       PersistentList<Integer> persistentList) {
