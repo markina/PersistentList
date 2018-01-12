@@ -79,7 +79,7 @@ public class PersistentList<E> implements IPersistentList<E> {
         }
         size++;
 
-        if (heads.size() < currentVersion + 1) {
+        if (heads.size() < currentVersion + 1) { /// TODO replace post check
             heads.add(heads.get(prevVersion));
         }
         if (tails.size() < currentVersion + 1) {
