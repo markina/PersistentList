@@ -49,5 +49,11 @@ public class FatNode<E> {
     boolean hasSecondNode() {
         return second != null;
     }
+
+    E getLasterValue() {
+        return hasSecondNode()
+                ? getSecond().getValue()
+                : getFirst().getValue();
+    }
 }
 

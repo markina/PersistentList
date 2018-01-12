@@ -200,7 +200,7 @@ public class PersistentList<E> implements IPersistentList<E> {
         return new PersistentListIterator<>(getNode(index, version), version);
     }
 
-    private Node<E> createNode(FatNode<E> fatNode, E value) {  // TODO rename
+    private Node<E> createNode(FatNode<E> fatNode, E value) {
         Node<E> newNode;
         if (fatNode.hasSecondNode()) {
             FatNode<E> newFatNode = new FatNode<>();
@@ -213,51 +213,49 @@ public class PersistentList<E> implements IPersistentList<E> {
         return newNode;
     }
 
-    private Node<E> createNode(FatNode<E> fatNode) { // TODO rename
-        return createNode(fatNode, fatNode.hasSecondNode()
-                ? fatNode.getSecond().getValue()
-                : fatNode.getFirst().getValue()); // TODO extract to Node "getLastValue" ?
+    private Node<E> createNode(FatNode<E> fatNode) {
+        return createNode(fatNode, fatNode.getLasterValue());
     }
 
-    private void linkToRight(Node<E> leftNode, FatNode<E> toModifyFatNode) {
-        if (toModifyFatNode == null) { // it's end of list
+    private void linkToRight(Node<E> leftNode, FatNode<E> fatNode) {
+        if (fatNode == null) { // it's end of list
             tails.add(leftNode.getBigBrother());
             return;
         }
 
-        if (toModifyFatNode.hasSecondNode()) {
-            Node<E> newNode = createNode(toModifyFatNode);
+        if (fatNode.hasSecondNode()) {
+            Node<E> newNode = createNode(fatNode);
             newNode.setPrev(leftNode.getBigBrother());
             leftNode.setNext(newNode.getBigBrother());
-            linkToRight(newNode, toModifyFatNode.getSecond().getNext());
+            linkToRight(newNode, fatNode.getSecond().getNext());
         } else {
-            Node<E> newNode = createNode(toModifyFatNode);
-            if (toModifyFatNode.getFirst().getNext() == null) {
-                tails.add(toModifyFatNode);
+            Node<E> newNode = createNode(fatNode);
+            if (fatNode.getFirst().getNext() == null) {
+                tails.add(fatNode);
             }
             newNode.setPrev(leftNode.getBigBrother());
-            newNode.setNext(toModifyFatNode.getFirst().getNext());
+            newNode.setNext(fatNode.getFirst().getNext());
             leftNode.setNext(newNode.getBigBrother());
         }
     }
 
-    private void linkToLeft(Node<E> rightNode, FatNode<E> toModifyFatNode) {
-        if (toModifyFatNode == null) { // it's start of list
+    private void linkToLeft(Node<E> rightNode, FatNode<E> fatNode) {
+        if (fatNode == null) { // it's start of list
             heads.add(rightNode.getBigBrother());
             return;
         }
 
-        if (toModifyFatNode.hasSecondNode()) {
-            Node<E> newNode = createNode(toModifyFatNode);
+        if (fatNode.hasSecondNode()) {
+            Node<E> newNode = createNode(fatNode);
             rightNode.setPrev(newNode.getBigBrother());
             newNode.setNext(rightNode.getBigBrother());
-            linkToLeft(newNode, toModifyFatNode.getSecond().getPrev());
+            linkToLeft(newNode, fatNode.getSecond().getPrev());
         } else {
-            Node<E> newNode = createNode(toModifyFatNode);
-            if (toModifyFatNode.getFirst().getPrev() == null) { // curFatNode is head
-                heads.add(toModifyFatNode);
+            Node<E> newNode = createNode(fatNode);
+            if (fatNode.getFirst().getPrev() == null) {
+                heads.add(fatNode);
             }
-            newNode.setPrev(toModifyFatNode.getFirst().getPrev());
+            newNode.setPrev(fatNode.getFirst().getPrev());
             newNode.setNext(rightNode.getBigBrother());
             rightNode.setPrev(newNode.getBigBrother());
         }
