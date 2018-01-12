@@ -1,11 +1,15 @@
 package com.ifmo.markina.persistent.list;
 
+import java.util.NoSuchElementException;
+
 public interface IPersistentList<E> {
     /**
      * Returns the first element  of the specified version of list.
      *
      * @param version the specified version
      * @return the first element  of the specified version of list
+     *
+     * @throws NoSuchElementException if list is empty
      */
     E getFirst(int version);
 
@@ -72,6 +76,13 @@ public interface IPersistentList<E> {
      * @throws IndexOutOfBoundsException if the index is out of range
      */
     void remove(int index);
+
+    /**
+     * Return size of list at the specified version.
+     * @param version the specified version
+     * @return size of list at the specified version
+     */
+    int getSize(int version);
 
     IIterator<E> getHeadIterator(int version);
 

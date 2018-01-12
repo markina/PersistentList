@@ -53,7 +53,7 @@ public class NaivePersistentList<E> implements IPersistentList<E> {
 
     @Override
     public IIterator<E> getHeadIterator(int version) {
-        if(list.get(version).isEmpty()) {
+        if (list.get(version).isEmpty()) {
             throw new NoSuchElementException("Element is absent");
         }
         return new NaiveIterator<>(list.get(version), 0);
@@ -61,7 +61,7 @@ public class NaivePersistentList<E> implements IPersistentList<E> {
 
     @Override
     public IIterator<E> getTailIterator(int version) {
-        if(list.get(version).isEmpty()) {
+        if (list.get(version).isEmpty()) {
             throw new NoSuchElementException("Element is absent");
         }
         return new NaiveIterator<>(list.get(version), list.get(version).size() - 1);
@@ -69,7 +69,7 @@ public class NaivePersistentList<E> implements IPersistentList<E> {
 
     @Override
     public IIterator<E> getIterator(int index, int version) {
-        if(list.get(version).isEmpty()) {
+        if (list.get(version).isEmpty()) {
             throw new NoSuchElementException("Element is absent");
         }
         return new NaiveIterator<>(list.get(version), index);
@@ -108,5 +108,10 @@ public class NaivePersistentList<E> implements IPersistentList<E> {
     @Override
     public boolean isEmpty(int version) {
         return list.get(version).size() == 0;
+    }
+
+    @Override
+    public int getSize(int version) {
+        return list.get(version).size();
     }
 }

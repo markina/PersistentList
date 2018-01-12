@@ -50,7 +50,7 @@ public class FatNode<E> {
         return second != null;
     }
 
-    E getLasterValue() {
+    E getLaterValue() {
         return hasSecondNode()
                 ? getSecond().getValue()
                 : getFirst().getValue();

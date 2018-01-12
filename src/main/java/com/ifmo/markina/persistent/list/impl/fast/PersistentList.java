@@ -1,6 +1,7 @@
 package com.ifmo.markina.persistent.list.impl.fast;
 
-import com.ifmo.markina.persistent.list.*;
+import com.ifmo.markina.persistent.list.IIterator;
+import com.ifmo.markina.persistent.list.IPersistentList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -139,6 +140,20 @@ public class PersistentList<E> implements IPersistentList<E> {
         addHeadTailIfNeed();
     }
 
+    @Override
+    public int getSize(int version) {
+        Node node = getFirstNode(version);
+        if (node == null) {
+            return 0;
+        }
+        int cnt = 1;
+        while (node.hasNext()) {
+            cnt++;
+            node = node.next(version);
+        }
+        return cnt;
+    }
+
     private void addHeadTailIfNeed() {
         if (heads.size() < currentVersion + 1) {
             heads.add(heads.get(prevVersion));
@@ -214,7 +229,7 @@ public class PersistentList<E> implements IPersistentList<E> {
     }
 
     private Node<E> createNode(FatNode<E> fatNode) {
-        return createNode(fatNode, fatNode.getLasterValue());
+        return createNode(fatNode, fatNode.getLaterValue());
     }
 
     private void linkToRight(Node<E> leftNode, FatNode<E> fatNode) {

@@ -22,7 +22,7 @@ public class NaiveIterator<E> implements IIterator<E> {
 
     @Override
     public boolean hasPrev() {
-        return 0 < currentIndex - 1;
+        return 0 < currentIndex;
     }
 
     @Override

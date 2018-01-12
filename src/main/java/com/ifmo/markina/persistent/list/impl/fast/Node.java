@@ -48,7 +48,7 @@ public class Node<E> {
     }
 
     public Node<E> next(int version) {
-        if(next == null) {
+        if (next == null) {
             throw new IllegalArgumentException("Next isn't exist");
         }
         return next.getNode(version);
