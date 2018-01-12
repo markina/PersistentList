@@ -13,7 +13,7 @@ public class NaivePersistentList<E> implements IPersistentList<E> {
 
     public NaivePersistentList() {
         list = new ArrayList<>();
-        list.add(new ArrayList<>());
+        list.add(new ArrayList<>()); // TODO переписать на linked list, чтобы было честно
         currentVersion = 0;
     }
 
@@ -49,6 +49,36 @@ public class NaivePersistentList<E> implements IPersistentList<E> {
             list.add(new ArrayList<>());
         }
         list.get(list.size() - 1).remove(index);
+    }
+
+    @Override
+    public void addFirst(E value) {
+        add(0, value);
+    }
+
+    @Override
+    public void addLast(E value) {
+        add(getCurrentSize(), value);
+    }
+
+    @Override
+    public void removeFirst() {
+        remove(0);
+    }
+
+    @Override
+    public void removeLast() {
+        remove(getCurrentSize()-1);
+    }
+
+    @Override
+    public void setFirst(E value) {
+        set(0, value);
+    }
+
+    @Override
+    public void setLast(E value) {
+        set(getCurrentSize() - 1, value);
     }
 
     @Override

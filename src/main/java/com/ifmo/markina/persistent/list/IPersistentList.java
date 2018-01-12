@@ -8,7 +8,6 @@ public interface IPersistentList<E> {
      *
      * @param version the specified version
      * @return the first element  of the specified version of list
-     *
      * @throws NoSuchElementException if list is empty
      */
     E getFirst(int version);
@@ -37,11 +36,19 @@ public interface IPersistentList<E> {
     int getCurrentVersion();
 
     /**
-     * Returns current size of list.
+     * Returns current size of list. Time should be O(1).
      *
      * @return current size
      */
     int getCurrentSize();
+
+    /**
+     * Return size of list at the specified version.
+     *
+     * @param version the specified version
+     * @return size of list at the specified version
+     */
+    int getSize(int version);
 
     /**
      * Returns <tt>true</tt> if the specified version of list contains no elements.
@@ -77,12 +84,17 @@ public interface IPersistentList<E> {
      */
     void remove(int index);
 
-    /**
-     * Return size of list at the specified version.
-     * @param version the specified version
-     * @return size of list at the specified version
-     */
-    int getSize(int version);
+    void addFirst(E value);
+
+    void addLast(E value);
+
+    void removeFirst();
+
+    void removeLast();
+
+    void setFirst(E value);
+
+    void setLast(E value);
 
     IIterator<E> getHeadIterator(int version);
 

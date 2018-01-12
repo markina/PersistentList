@@ -184,6 +184,109 @@ public class Tests {
         }
     }
 
+
+    @Test
+    public void addLastTest() {
+        init(0);
+
+        for (int i = 0; i < 100; i++) {
+            addLastBoth(random.nextInt(1000));
+        }
+
+        assertEqualsList();
+    }
+
+    @Test
+    public void removeFirstTest() {
+        init(100);
+
+        for (int i = 0; i < 100; i++) {
+            removeFirstBoth();
+        }
+
+        assertEqualsList();
+    }
+
+    @Test
+    public void removeLastTest() {
+        init(100);
+
+        for (int i = 0; i < 100; i++) {
+            removeLastBoth();
+        }
+
+        assertEqualsList();
+    }
+
+
+    // TODO надо придумать как сравнить память
+    // TODO дописать md
+    // TODO научиться делать таблицы в md и исправить md
+
+    @Test
+    public void setFirstTest() {
+        init(100);
+
+        for (int i = 0; i < 100; i++) {
+            setFirstBoth(random.nextInt(1000));
+        }
+
+        assertEqualsList();
+    }
+
+    @Test
+    public void setLastTest() {
+        init(100);
+
+        for (int i = 0; i < 100; i++) {
+            setLastBoth(random.nextInt(1000));
+        }
+
+        assertEqualsList();
+    }
+
+
+    @Test
+    public void addFirstTest() {
+        init(0);
+
+        for (int i = 0; i < 100; i++) {
+            addFirstBoth(random.nextInt(1000));
+        }
+
+        assertEqualsList();
+    }
+
+    private void addFirstBoth(int value) {
+        expected.addFirst(value);
+        actual.addFirst(value);
+    }
+
+    private void addLastBoth(int value) {
+        expected.addLast(value);
+        actual.addLast(value);
+    }
+
+    private void setFirstBoth(int value) {
+        expected.setFirst(value);
+        actual.setFirst(value);
+    }
+
+    private void setLastBoth(int value) {
+        expected.setLast(value);
+        actual.setLast(value);
+    }
+
+    private void removeFirstBoth() {
+        expected.removeFirst();
+        actual.removeFirst();
+    }
+
+    private void removeLastBoth() {
+        expected.removeLast();
+        actual.removeLast();
+    }
+
     private void init(int size) {
         expected = new NaivePersistentList<>();
         actual = new PersistentList<>();

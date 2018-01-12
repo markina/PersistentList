@@ -154,6 +154,36 @@ public class PersistentList<E> implements IPersistentList<E> {
         return cnt;
     }
 
+    @Override
+    public void addFirst(E value) {
+        add(0, value);
+    }
+
+    @Override
+    public void addLast(E value) {
+        add(getCurrentSize(), value);
+    }
+
+    @Override
+    public void removeFirst() {
+        remove(0);
+    }
+
+    @Override
+    public void removeLast() {
+        remove(getCurrentSize() - 1);
+    }
+
+    @Override
+    public void setFirst(E value) {
+        set(0, value);
+    }
+
+    @Override
+    public void setLast(E value) {
+        set(getCurrentSize() - 1, value);
+    }
+
     private void addHeadTailIfNeed() {
         if (heads.size() < currentVersion + 1) {
             heads.add(heads.get(prevVersion));
@@ -331,6 +361,10 @@ public class PersistentList<E> implements IPersistentList<E> {
     }
 
     private Node<E> getNode(int index, int version) {
+        if (index == getCurrentSize()) {
+            getLast(version);
+        }
+
         int curIndex = 0;
         Node<E> node = getFirstNode(version);
         if (node == null) {
