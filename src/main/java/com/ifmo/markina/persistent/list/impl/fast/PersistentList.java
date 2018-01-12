@@ -79,14 +79,8 @@ public class PersistentList<E> implements IPersistentList<E> {
         }
         size++;
 
-        if (heads.size() < currentVersion + 1) { /// TODO replace post check
-            heads.add(heads.get(prevVersion));
-        }
-        if (tails.size() < currentVersion + 1) {
-            tails.add(tails.get(prevVersion));
-        }
+        addHeadTailIfNeed();
     }
-
 
     @Override
     public void set(int index, E newValue) {
@@ -95,12 +89,7 @@ public class PersistentList<E> implements IPersistentList<E> {
 
         set(getNode(index, prevVersion), newValue);
 
-        if (heads.size() < currentVersion + 1) { // TODO extract duplicate code
-            heads.add(heads.get(prevVersion));
-        }
-        if (tails.size() < currentVersion + 1) {
-            tails.add(tails.get(prevVersion));
-        }
+        addHeadTailIfNeed();
     }
 
     @Override
@@ -118,46 +107,39 @@ public class PersistentList<E> implements IPersistentList<E> {
 
         if (leftFatNode == null) {
             removeHead(node);
-            size--;
-            if (tails.size() < currentVersion + 1) {
-                tails.add(tails.get(prevVersion));
-            }
-            return;
-        }
-        if (rightFatNode == null) {
+        } else if (rightFatNode == null) {
             removeTail(node);
-            size--;
-            if (heads.size() < currentVersion + 1) {
-                heads.add(heads.get(prevVersion));
-            }
-            return;
-        }
-
-        Node<E> rightNode = createNode(rightFatNode);
-        Node<E> leftNode = createNode(leftFatNode);
-
-        rightNode.setPrev(leftNode.getBigBrother());
-        leftNode.setNext(rightNode.getBigBrother());
-
-        if (rightNode.getBigBrother().hasSecondNode()) {
-            if (rightFatNode.getFirst().getNext() == null) {
-                tails.add(rightNode.getBigBrother());
-            }
-            rightNode.setNext(rightFatNode.getFirst().getNext());
         } else {
-            linkToRight(rightNode, rightFatNode.getSecond().getNext());
-        }
+            Node<E> rightNode = createNode(rightFatNode);
+            Node<E> leftNode = createNode(leftFatNode);
 
-        if (leftNode.getBigBrother().hasSecondNode()) {
-            if (leftFatNode.getFirst().getPrev() == null) {
-                heads.add(leftNode.getBigBrother());
+            rightNode.setPrev(leftNode.getBigBrother());
+            leftNode.setNext(rightNode.getBigBrother());
+
+            if (rightNode.getBigBrother().hasSecondNode()) {
+                if (rightFatNode.getFirst().getNext() == null) {
+                    tails.add(rightNode.getBigBrother());
+                }
+                rightNode.setNext(rightFatNode.getFirst().getNext());
+            } else {
+                linkToRight(rightNode, rightFatNode.getSecond().getNext());
             }
-            leftNode.setPrev(leftFatNode.getFirst().getPrev());
-        } else {
-            linkToLeft(leftNode, leftFatNode.getSecond().getPrev());
+
+            if (leftNode.getBigBrother().hasSecondNode()) {
+                if (leftFatNode.getFirst().getPrev() == null) {
+                    heads.add(leftNode.getBigBrother());
+                }
+                leftNode.setPrev(leftFatNode.getFirst().getPrev());
+            } else {
+                linkToLeft(leftNode, leftFatNode.getSecond().getPrev());
+            }
         }
 
         size--;
+        addHeadTailIfNeed();
+    }
+
+    private void addHeadTailIfNeed() {
         if (heads.size() < currentVersion + 1) {
             heads.add(heads.get(prevVersion));
         }
@@ -317,11 +299,7 @@ public class PersistentList<E> implements IPersistentList<E> {
         }
 
         FatNode<E> head = heads.get(version);
-        if (head == null) {
-            return null;// TODO ?
-        }
-
-        return head.getNode(version);
+        return head == null ? null : head.getNode(version);
     }
 
     /**
@@ -336,11 +314,7 @@ public class PersistentList<E> implements IPersistentList<E> {
         }
 
         FatNode<E> tail = tails.get(version);
-        if (tail == null) {
-            return null; // TODO ?
-        }
-
-        return tail.getNode(version);
+        return tail == null ? null : tail.getNode(version);
     }
 
     private Node<E> getNode(int index, int version) {
