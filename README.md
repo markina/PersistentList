@@ -24,14 +24,18 @@
 далее выполняется операция. 
 
 В операциях с началом или концом списка поиск выполнять не нужно, 
-следовательно, амортизационная стоимость - O(1).  
+следовательно, время будет равно времи обновлению ссылок, амортизационная стоимость обновления - O(1).  
+Есть добаление/изменение/удаление происходило бы по ссылке, которая указывает на середину списка, то 
+операция добаления/изменения/удаления в целом бы занимала O(1) времени. 
 
-Методы измнения за O(n):
+Амортизационная стоимость затрат по памяти на любую опарацию O(1).
+
+Методы измнения за O(n) времени:
    
     void add(int index, E value);
     void set(int index, E newValue);
     void remove(int index);
-Методы измнения за O(1):
+Методы измнения за O(1) времени:
     
     void addFirst(E value);
     void addLast(E value);
@@ -39,32 +43,32 @@
     void removeLast();
     void setTail(E value);
     void setLast(E value);
-Получение значения за O(1):
+Получение значения за O(1) времени:
    
     E getFirst(int version);
     E getLast(int version);
     E getFirst();
     E getLast();
-Получение значения за O(n):
+Получение значения за O(n) времени:
     
     E get(int index, int version);
     E get(int index);
-Получение информации за O(1):
+Получение информации за O(1) времени:
 
     int getCurrentVersion();
     int getCurrentSize();
     boolean isEmpty(int version);
     boolean isEmpty();
-Получение информации за O(n):
+Получение информации за O(n) времени:
 
     int getSize(int version);
-Получение итератора за O(1):
+Получение итератора за O(1) времени:
     
     IIterator<E> getHeadIterator(int version);
     IIterator<E> getTailIterator(int version);
     IIterator<E> getHeadIterator();
     IIterator<E> getTailIterator();    
-Получение итератора за O(n):
+Получение итератора за O(n) времени:
 
     IIterator<E> getIterator(int index, int version);
     IIterator<E> getIterator(int index);
