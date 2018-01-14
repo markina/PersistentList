@@ -6,9 +6,11 @@ import com.ifmo.markina.persistent.list.impl.fast.PersistentList;
 import com.ifmo.markina.persistent.list.impl.naive.NaivePersistentList;
 import org.junit.Test;
 
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 import static org.junit.Assert.*;
+import static org.junit.gen5.api.Assertions.assertThrows;
 
 public class Tests {
     private final Random random = new Random(239);
@@ -56,19 +58,19 @@ public class Tests {
         }
     }
 
-//    @Test // TODO update junit
-//    public void getFirstFailTest() {
-//        init(0);
-//
-//        assertThrows(actual.getFirst(), NoSuchElementException.class);
-//        assertThrows(expected.getFirst(), NoSuchElementException.class);
-//
-//        addBoth(0, 1);
-//        removeBoth(0);
-//
-//        assertThrows(actual.getFirst(), NoSuchElementException.class);
-//        assertThrows(expected.getFirst(), NoSuchElementException.class);
-//    }
+    @Test
+    public void getFirstFailTest() {
+        init(0);
+
+        assertThrows(NoSuchElementException.class, () -> actual.getFirst());
+        assertThrows(NoSuchElementException.class, () -> expected.getFirst());
+
+        addBoth(0, 1);
+        removeBoth(0);
+
+        assertThrows(NoSuchElementException.class, () -> actual.getFirst());
+        assertThrows(NoSuchElementException.class, () -> expected.getFirst());
+    }
 
     @Test
     public void getLastTest() {
@@ -79,20 +81,19 @@ public class Tests {
         }
     }
 
-//    @Test  // TODO update junit
-//    public void getLastFailTest() {
-//        init(0);
-//
-//        assertThrows(actual.getLast(), NoSuchElementException.class);
-//        assertThrows(expected.getLast(), NoSuchElementException.class);
-//
-//        addBoth(0, 1);
-//        removeBoth(0);
-//
-//        assertThrows(actual.getLast(), NoSuchElementException.class);
-//        assertThrows(expected.getLast(), NoSuchElementException.class);
-//    }
+    @Test
+    public void getLastFailTest() {
+        init(0);
 
+        assertThrows(NoSuchElementException.class, () -> actual.getLast());
+        assertThrows(NoSuchElementException.class, () -> expected.getLast());
+
+        addBoth(0, 1);
+        removeBoth(0);
+
+        assertThrows(NoSuchElementException.class, () -> actual.getLast());
+        assertThrows(NoSuchElementException.class, () -> expected.getLast());
+    }
 
     @Test
     public void getHeadIterator() throws Exception {
