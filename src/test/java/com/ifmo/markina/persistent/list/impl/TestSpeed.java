@@ -5,11 +5,8 @@ import com.ifmo.markina.persistent.list.impl.fast.PersistentList;
 import com.ifmo.markina.persistent.list.impl.naive.NaivePersistentList;
 
 import java.util.Random;
-import java.util.function.Consumer;
-
 
 public class TestSpeed {
-    // TODO + md
 
     private static Random random = new Random(239);
 
@@ -28,23 +25,6 @@ public class TestSpeed {
         headRemove(n);
         tailRemove(n);
     }
-
-//    private Long averageTime(Runnable runnable) {
-//
-//        Long start, end;
-//
-//        int iteration = 5;
-//        Long sum = 0L;
-//
-//        for(int i = 0; i < iteration; i++) {
-//            start = System.currentTimeMillis();
-//            runnable.run();
-//            end = System.currentTimeMillis();
-//            sum += (end - start);
-//        }
-//
-//        return sum / iteration;
-//    }
 
     private static void randomRemove(int n) {
         System.out.println("Random remove: " + n);
