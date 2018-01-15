@@ -5,6 +5,7 @@ import com.ifmo.markina.persistent.list.impl.fast.PersistentList;
 import com.ifmo.markina.persistent.list.impl.naive.NaivePersistentList;
 
 import java.util.Random;
+import java.util.function.Consumer;
 
 
 public class TestSpeed {
@@ -12,26 +13,8 @@ public class TestSpeed {
 
     private static Random random = new Random(239);
 
-    public static void add(int n, IPersistentList<Integer> list) {
-        for (int i = 0; i < n; i++) {
-            list.add(random.nextInt(i + 1), i);
-        }
-    }
-
-    public static void addHead(int n, IPersistentList<Integer> list) {
-        for (int i = 0; i < n; i++) {
-            list.add(0, i);
-        }
-    }
-
-    private static void addTail(int n, IPersistentList<Integer> list) {
-        for (int i = 0; i < n; i++) {
-            list.add(i, i);
-        }
-    }
-
     public static void main(String[] args) {
-        int n = 150000;
+        int n = 5000;
 
         warmUp(n);
 
@@ -46,6 +29,22 @@ public class TestSpeed {
         tailRemove(n);
     }
 
+//    private Long averageTime(Runnable runnable) {
+//
+//        Long start, end;
+//
+//        int iteration = 5;
+//        Long sum = 0L;
+//
+//        for(int i = 0; i < iteration; i++) {
+//            start = System.currentTimeMillis();
+//            runnable.run();
+//            end = System.currentTimeMillis();
+//            sum += (end - start);
+//        }
+//
+//        return sum / iteration;
+//    }
 
     private static void randomRemove(int n) {
         System.out.println("Random remove: " + n);
@@ -146,13 +145,13 @@ public class TestSpeed {
         Long start, end;
 
         start = System.currentTimeMillis();
-        add(n, new PersistentList<>());
+        addHead(n, new PersistentList<>());
         end = System.currentTimeMillis();
 
         System.out.println("PersistentList: " + (end - start));
 
         start = System.currentTimeMillis();
-        add(n, new NaivePersistentList<>());
+        addHead(n, new NaivePersistentList<>());
         end = System.currentTimeMillis();
 
         System.out.println("NaivePersistentList: " + (end - start));
@@ -261,31 +260,49 @@ public class TestSpeed {
 
     private static void tailSet(int n, IPersistentList<Integer> list) {
         for (int i = n - 1; i >= 0; i--) {
-            list.set(n - 1, i);
+            list.setLast(i);
         }
     }
 
     private static void tailRemove(int n, IPersistentList<Integer> list) {
         for (int i = n - 1; i >= 0; i--) {
-            list.remove(i);
+            list.removeLast();
         }
     }
 
     private static void headRemove(int n, IPersistentList<Integer> list) {
         for (int i = n; i > 0; i--) {
-            list.remove(0);
+            list.removeFirst();
         }
     }
 
     private static void headSet(int n, IPersistentList<Integer> list) {
         for (int i = n; i > 0; i--) {
-            list.set(0, i);
+            list.setFirst(i);
         }
     }
 
     private static void randomSet(int n, IPersistentList<Integer> list) {
         for (int i = n; i > 0; i--) {
             list.set(random.nextInt(i), i);
+        }
+    }
+
+    public static void add(int n, IPersistentList<Integer> list) {
+        for (int i = 0; i < n; i++) {
+            list.add(random.nextInt(i + 1), i);
+        }
+    }
+
+    public static void addHead(int n, IPersistentList<Integer> list) {
+        for (int i = 0; i < n; i++) {
+            list.addFirst(i);
+        }
+    }
+
+    private static void addTail(int n, IPersistentList<Integer> list) {
+        for (int i = 0; i < n; i++) {
+            list.addLast(i);
         }
     }
 

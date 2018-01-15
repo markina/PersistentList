@@ -9,8 +9,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class NaivePersistentList<E> implements IPersistentList<E> {
-    private List<List<E>> list;
+    private List<LinkedList<E>> list;
     private int currentVersion;
+    // TODO current size O(1)
 
     public NaivePersistentList() {
         list = new ArrayList<>();
@@ -22,13 +23,16 @@ public class NaivePersistentList<E> implements IPersistentList<E> {
     public void add(int index, E value) {
         currentVersion++;
         if (list.size() != 0) {
-            list.add(new ArrayList<>(list.get(list.size() - 1)));
+            list.add(new LinkedList<>(list.get(list.size() - 1)));
         } else {
-            list.add(new ArrayList<>());
+            list.add(new LinkedList<>());
         }
 
         if (index == list.get(list.size() - 1).size()) {
-            list.get(list.size() - 1).add(value);
+            list.get(list.size() - 1).offerLast(value);
+        } else if (index == 0) {
+            list.get(list.size() - 1).offerFirst(value);
+
         } else {
             list.get(list.size() - 1).add(index, value);
         }
@@ -38,22 +42,38 @@ public class NaivePersistentList<E> implements IPersistentList<E> {
     public void set(int index, E newValue) {
         currentVersion++;
         if (list.size() != 0) {
-            list.add(new ArrayList<>(list.get(list.size() - 1)));
+            list.add(new LinkedList<>(list.get(list.size() - 1)));
         } else {
-            list.add(new ArrayList<>());
+            list.add(new LinkedList<>());
         }
-        list.get(list.size() - 1).set(index, newValue);
+
+        if (index + 1 == list.get(list.size() - 1).size()) {
+            list.get(list.size() - 1).removeLast();
+            list.get(list.size() - 1).addLast(newValue);
+        } else if (index == 0) {
+            list.get(list.size() - 1).removeFirst();
+            list.get(list.size() - 1).addFirst(newValue);
+        } else {
+            list.get(list.size() - 1).set(index, newValue);
+        }
     }
 
     @Override
     public void remove(int index) {
         currentVersion++;
         if (list.size() != 0) {
-            list.add(new ArrayList<>(list.get(list.size() - 1)));
+            list.add(new LinkedList<>(list.get(list.size() - 1)));
         } else {
-            list.add(new ArrayList<>());
+            list.add(new LinkedList<>());
         }
-        list.get(list.size() - 1).remove(index);
+
+        if (index + 1 == list.get(list.size() - 1).size()) {
+            list.get(list.size() - 1).removeLast();
+        } else if (index == 0) {
+            list.get(list.size() - 1).removeFirst();
+        } else {
+            list.get(list.size() - 1).remove(index);
+        }
     }
 
     @Override
