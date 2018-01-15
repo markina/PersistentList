@@ -12,7 +12,7 @@ import java.util.Random;
 import static org.junit.Assert.*;
 import static org.junit.gen5.api.Assertions.assertThrows;
 
-public class Tests {
+public class TestCorrectness {
     private final Random random = new Random(239);
     private NaivePersistentList<Integer> expected;
     private PersistentList<Integer> actual;
@@ -218,11 +218,6 @@ public class Tests {
 
         assertEqualsList();
     }
-
-
-    // TODO надо придумать как сравнить память
-    // TODO дописать md
-    // TODO научиться делать таблицы в md и исправить md
 
     @Test
     public void setFirstTest() {
