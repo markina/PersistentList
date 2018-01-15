@@ -9,7 +9,6 @@ import java.util.Random;
 
 public class TestSpeed {
     // TODO + md
-    // TODO fix O() in md
 
     private static Random random = new Random(239);
 
@@ -32,9 +31,9 @@ public class TestSpeed {
     }
 
     public static void main(String[] args) {
-        int n = 10000;
+        int n = 150000;
 
-        warmUp();
+        warmUp(n);
 
         randomAdd(n);
         addHead(n);
@@ -51,185 +50,207 @@ public class TestSpeed {
     private static void randomRemove(int n) {
         System.out.println("Random remove: " + n);
 
-        NaivePersistentList<Integer> naivePersistentList = new NaivePersistentList<>();
-        init(10000, naivePersistentList);
-
-        Long start = System.currentTimeMillis();
-        randomRemove(n, naivePersistentList);
-        Long end = System.currentTimeMillis();
-
-        System.out.println("NaivePersistentList: " + (end - start));
+        Long start, end;
 
         PersistentList<Integer> persistentList = new PersistentList<>();
-        init(10000, persistentList);
+        init(n, persistentList);
 
         start = System.currentTimeMillis();
         randomRemove(n, persistentList);
         end = System.currentTimeMillis();
 
         System.out.println("PersistentList: " + (end - start));
+
+        NaivePersistentList<Integer> naivePersistentList = new NaivePersistentList<>();
+        init(n, naivePersistentList);
+
+        start = System.currentTimeMillis();
+        randomRemove(n, naivePersistentList);
+        end = System.currentTimeMillis();
+
+        System.out.println("NaivePersistentList: " + (end - start));
+
     }
 
     private static void tailRemove(int n) {
         System.out.println("Tail remove: " + n);
 
-        NaivePersistentList<Integer> naivePersistentList = new NaivePersistentList<>();
-        init(10000, naivePersistentList);
-
-        Long start = System.currentTimeMillis();
-        tailRemove(n, naivePersistentList);
-        Long end = System.currentTimeMillis();
-
-        System.out.println("NaivePersistentList: " + (end - start));
+        Long start, end;
 
         PersistentList<Integer> persistentList = new PersistentList<>();
-        init(10000, persistentList);
+        init(n, persistentList);
 
         start = System.currentTimeMillis();
         tailRemove(n, persistentList);
         end = System.currentTimeMillis();
 
         System.out.println("PersistentList: " + (end - start));
+
+        NaivePersistentList<Integer> naivePersistentList = new NaivePersistentList<>();
+        init(n, naivePersistentList);
+
+        start = System.currentTimeMillis();
+        tailRemove(n, naivePersistentList);
+        end = System.currentTimeMillis();
+
+        System.out.println("NaivePersistentList: " + (end - start));
     }
 
     private static void headRemove(int n) {
         System.out.println("Head remove: " + n);
 
-        NaivePersistentList<Integer> naivePersistentList = new NaivePersistentList<>();
-        init(10000, naivePersistentList);
-
-        Long start = System.currentTimeMillis();
-        headRemove(n, naivePersistentList);
-        Long end = System.currentTimeMillis();
-
-        System.out.println("NaivePersistentList: " + (end - start));
+        Long start, end;
 
         PersistentList<Integer> persistentList = new PersistentList<>();
-        init(10000, persistentList);
+        init(n, persistentList);
 
         start = System.currentTimeMillis();
         headRemove(n, persistentList);
         end = System.currentTimeMillis();
 
         System.out.println("PersistentList: " + (end - start));
+
+        NaivePersistentList<Integer> naivePersistentList = new NaivePersistentList<>();
+        init(n, naivePersistentList);
+
+        start = System.currentTimeMillis();
+        headRemove(n, naivePersistentList);
+        end = System.currentTimeMillis();
+
+        System.out.println("NaivePersistentList: " + (end - start));
+
     }
 
     private static void addTail(int n) {
         System.out.println("Add tail: " + n);
 
-        Long start = System.currentTimeMillis();
-        addTail(n, new NaivePersistentList<>());
-        Long end = System.currentTimeMillis();
-
-        System.out.println("NaivePersistentList: " + (end - start));
+        Long start, end;
 
         start = System.currentTimeMillis();
         addTail(n, new PersistentList<>());
         end = System.currentTimeMillis();
 
         System.out.println("PersistentList: " + (end - start));
+
+        start = System.currentTimeMillis();
+        addTail(n, new NaivePersistentList<>());
+        end = System.currentTimeMillis();
+
+        System.out.println("NaivePersistentList: " + (end - start));
+
     }
 
     private static void addHead(int n) {
         System.out.println("Add head: " + n);
 
-        Long start = System.currentTimeMillis();
-        add(n, new NaivePersistentList<>());
-        Long end = System.currentTimeMillis();
-
-        System.out.println("NaivePersistentList: " + (end - start));
+        Long start, end;
 
         start = System.currentTimeMillis();
         add(n, new PersistentList<>());
         end = System.currentTimeMillis();
 
         System.out.println("PersistentList: " + (end - start));
+
+        start = System.currentTimeMillis();
+        add(n, new NaivePersistentList<>());
+        end = System.currentTimeMillis();
+
+        System.out.println("NaivePersistentList: " + (end - start));
     }
 
     private static void randomAdd(int n) {
         System.out.println("Random add: " + n);
 
-        Long start = System.currentTimeMillis();
-        add(n, new NaivePersistentList<>());
-        Long end = System.currentTimeMillis();
-
-        System.out.println("NaivePersistentList: " + (end - start));
+        Long start, end;
 
         start = System.currentTimeMillis();
         add(n, new PersistentList<>());
         end = System.currentTimeMillis();
 
         System.out.println("PersistentList: " + (end - start));
+
+        start = System.currentTimeMillis();
+        add(n, new NaivePersistentList<>());
+        end = System.currentTimeMillis();
+
+        System.out.println("NaivePersistentList: " + (end - start));
     }
 
     private static void randomSet(int n) {
         System.out.println("Random set: " + n);
 
-        NaivePersistentList<Integer> naivePersistentList = new NaivePersistentList<>();
-        init(10000, naivePersistentList);
-
-        Long start = System.currentTimeMillis();
-        randomSet(n, naivePersistentList);
-        Long end = System.currentTimeMillis();
-
-        System.out.println("NaivePersistentList: " + (end - start));
+        Long start, end;
 
         PersistentList<Integer> persistentList = new PersistentList<>();
-        init(10000, persistentList);
+        init(n, persistentList);
 
         start = System.currentTimeMillis();
         randomSet(n, persistentList);
         end = System.currentTimeMillis();
 
         System.out.println("PersistentList: " + (end - start));
+
+        NaivePersistentList<Integer> naivePersistentList = new NaivePersistentList<>();
+        init(n, naivePersistentList);
+
+        start = System.currentTimeMillis();
+        randomSet(n, naivePersistentList);
+        end = System.currentTimeMillis();
+
+        System.out.println("NaivePersistentList: " + (end - start));
     }
 
     private static void headSet(int n) {
         System.out.println("Head set: " + n);
 
-        NaivePersistentList<Integer> naivePersistentList = new NaivePersistentList<>();
-        init(10000, naivePersistentList);
-
-        Long start = System.currentTimeMillis();
-        headSet(n, naivePersistentList);
-        Long end = System.currentTimeMillis();
-
-        System.out.println("NaivePersistentList: " + (end - start));
+        Long start, end;
 
         PersistentList<Integer> persistentList = new PersistentList<>();
-        init(10000, persistentList);
+        init(n, persistentList);
 
         start = System.currentTimeMillis();
         headSet(n, persistentList);
         end = System.currentTimeMillis();
 
         System.out.println("PersistentList: " + (end - start));
+
+        NaivePersistentList<Integer> naivePersistentList = new NaivePersistentList<>();
+        init(n, naivePersistentList);
+
+        start = System.currentTimeMillis();
+        headSet(n, naivePersistentList);
+        end = System.currentTimeMillis();
+
+        System.out.println("NaivePersistentList: " + (end - start));
     }
 
     private static void tailSet(int n) {
         System.out.println("Tail set: " + n);
 
-        NaivePersistentList<Integer> naivePersistentList = new NaivePersistentList<>();
-        init(10000, naivePersistentList);
-
-        Long start = System.currentTimeMillis();
-        tailSet(n, naivePersistentList);
-        Long end = System.currentTimeMillis();
-
-        System.out.println("NaivePersistentList: " + (end - start));
+        Long start, end;
 
         PersistentList<Integer> persistentList = new PersistentList<>();
-        init(10000, persistentList);
+        init(n, persistentList);
 
         start = System.currentTimeMillis();
         tailSet(n, persistentList);
         end = System.currentTimeMillis();
 
         System.out.println("PersistentList: " + (end - start));
+
+        NaivePersistentList<Integer> naivePersistentList = new NaivePersistentList<>();
+        init(n, naivePersistentList);
+
+        start = System.currentTimeMillis();
+        tailSet(n, naivePersistentList);
+        end = System.currentTimeMillis();
+
+        System.out.println("NaivePersistentList: " + (end - start));
+
     }
 
-    private static void warmUp() {
-        add(10000, new NaivePersistentList<>());
+    private static void warmUp(int n) {
+        add(n, new NaivePersistentList<>());
     }
 
     private static void randomRemove(int n, IPersistentList<Integer> list) {
