@@ -11,7 +11,6 @@ import java.util.NoSuchElementException;
 public class NaivePersistentList<E> implements IPersistentList<E> {
     private List<LinkedList<E>> list;
     private int currentVersion;
-    // TODO current size O(1)
 
     public NaivePersistentList() {
         list = new ArrayList<>();
