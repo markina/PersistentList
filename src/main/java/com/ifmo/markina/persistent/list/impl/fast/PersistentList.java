@@ -361,8 +361,8 @@ public class PersistentList<E> implements IPersistentList<E> {
     }
 
     private Node<E> getNode(int index, int version) {
-        if (index == getCurrentSize()) {
-            getLast(version);
+        if (index + 1 == getCurrentSize()) {
+            return getLastNode(version);
         }
 
         int curIndex = 0;

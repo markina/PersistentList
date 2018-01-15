@@ -4,6 +4,7 @@ import com.ifmo.markina.persistent.list.IIterator;
 import com.ifmo.markina.persistent.list.IPersistentList;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -13,7 +14,7 @@ public class NaivePersistentList<E> implements IPersistentList<E> {
 
     public NaivePersistentList() {
         list = new ArrayList<>();
-        list.add(new ArrayList<>()); // TODO переписать на linked list, чтобы было честно
+        list.add(new LinkedList<>());
         currentVersion = 0;
     }
 
@@ -26,7 +27,11 @@ public class NaivePersistentList<E> implements IPersistentList<E> {
             list.add(new ArrayList<>());
         }
 
-        list.get(list.size() - 1).add(index, value);
+        if (index == list.get(list.size() - 1).size()) {
+            list.get(list.size() - 1).add(value);
+        } else {
+            list.get(list.size() - 1).add(index, value);
+        }
     }
 
     @Override
@@ -68,7 +73,7 @@ public class NaivePersistentList<E> implements IPersistentList<E> {
 
     @Override
     public void removeLast() {
-        remove(getCurrentSize()-1);
+        remove(getCurrentSize() - 1);
     }
 
     @Override
