@@ -215,7 +215,7 @@ Persistent List - реализация с методами path coping и fat no
 на операции рядом, скорее всего в этот момент происходить выделение памяти. 
 
 
-![](./src/test/resources/randomAdd.png| width=10)
+![](./src/test/resources/randomAdd.png)
 ![](./src/test/resources/randomSet.png)
 ![](./src/test/resources/randomRemove.png)
 ![](./src/test/resources/addFirst.png)
