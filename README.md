@@ -205,6 +205,10 @@ OutOfMemoryError: Java heap space. Для операций удаления и �
 | Удаление в начале                	|            290              	|             1             	|
 | Удаление в конце                	|            289              	|             1                	|
 
+## Графики 
+
+![add first](./src/test/resources/addFirst.png)
+
 ## Сборка
 * [Maven](https://maven.apache.org/) - Dependency Management
 
