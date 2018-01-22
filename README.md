@@ -214,6 +214,13 @@ Persistent List - реализация с методами path coping и fat no
 возникающим задержкам, где на одну операцию тратится в 100-1000 раз больше времени, чем 
 на операции рядом, скорее всего в этот момент происходить выделение памяти. 
 
+```{r fig.width=1, fig.height=10,echo=FALSE}
+library(png)
+library(grid)
+img <- readPNG("./src/test/resources/randomAdd.png")
+ grid.raster(img)
+```
+
 ![](./src/test/resources/randomAdd.png)
 ![](./src/test/resources/randomSet.png)
 ![](./src/test/resources/randomRemove.png)
