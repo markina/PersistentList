@@ -215,9 +215,7 @@ Persistent List - реализация с методами path coping и fat no
 на операции рядом, скорее всего в этот момент происходить выделение памяти. 
 
 
-![](https://github.com/markina/PersistentList/blob/master/src/test/resources/addFirst.png | width=100)
-
-![](./src/test/resources/randomAdd.png)
+![](./src/test/resources/randomAdd.png| width=10)
 ![](./src/test/resources/randomSet.png)
 ![](./src/test/resources/randomRemove.png)
 ![](./src/test/resources/addFirst.png)
