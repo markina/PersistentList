@@ -207,7 +207,37 @@ OutOfMemoryError: Java heap space. Для операций удаления и �
 
 ## Графики 
 
-![add first](./src/test/resources/addFirst.png)
+Графики для всех функций по времени. График отображает суммарное время до n-ой операции 
+для двух реализаций персистентного списка. Naive Persistent List - наивная реализация,
+Persistent List - реализация с методами path coping и fat node. Замечание: в графиках 
+пренебрегается иногда 
+возникающим задержкам, где на одну операцию тратится в 100-1000 раз больше времени, чем 
+на операции рядом, скорее всего в этот момент происходить выделение памяти. 
+
+![](./src/test/resources/randomAdd.png)
+![](./src/test/resources/randomSet.png)
+![](./src/test/resources/randomRemove.png)
+![](./src/test/resources/addFirst.png)
+![](./src/test/resources/addLast.png)
+![](./src/test/resources/setFirst.png)
+![](./src/test/resources/setLast.png)
+![](./src/test/resources/removeFirst.png)
+![](./src/test/resources/removeLast.png)
+
+Графики для всех функий по памяти. График отображает суммарные затраты памяти 
+до n-ой операции для двух реализаций персистентного списка. 
+Naive Persistent List - наивная реализация,
+Persistent List - реализация с методами path coping и fat node.
+
+![](./src/test/resources/memoryRandomAdd.png)
+![](./src/test/resources/memoryRandomSet.png)
+![](./src/test/resources/memoryRandomRemove.png)
+![](./src/test/resources/memoryAddFirst.png)
+![](./src/test/resources/memoryAddLast.png)
+![](./src/test/resources/memorySetFirst.png)
+![](./src/test/resources/memorySetLast.png)
+![](./src/test/resources/memoryRemoveFirst.png)
+![](./src/test/resources/memoryRemoveLast.png)
 
 ## Сборка
 * [Maven](https://maven.apache.org/) - Dependency Management
